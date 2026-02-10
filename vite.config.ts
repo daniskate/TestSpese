@@ -53,6 +53,11 @@ export default defineConfig({
       },
     }),
   ],
+  // AGGIUNGI QUESTO BLOCCO QUI SOTTO
+  preview: {
+    port: 8080,
+    host: "0.0.0.0",
+  },
   build: {
     rollupOptions: {
       output: {
