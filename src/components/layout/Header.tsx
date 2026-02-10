@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router";
-import { Settings, Share2 } from "lucide-react";
+import { Settings, Share2, Home } from "lucide-react";
 import { useGroup } from "@/context/GroupContext";
 import { toast } from "sonner";
 
@@ -29,9 +29,18 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-card">
       <div className="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
-        <h1 className="truncate text-lg font-semibold">
-          {group?.name ?? "SpeseDivise"}
-        </h1>
+        <div className="flex items-center gap-2 min-w-0">
+          <button
+            onClick={() => navigate("/")}
+            className="shrink-0 rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            aria-label="Torna alla home"
+          >
+            <Home className="h-5 w-5" />
+          </button>
+          <h1 className="truncate text-lg font-semibold">
+            {group?.name ?? "SpeseDivise"}
+          </h1>
+        </div>
         <div className="flex items-center gap-1">
           <button
             onClick={handleShare}
