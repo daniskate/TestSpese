@@ -16,6 +16,7 @@ import {
 import { db } from "@/config/firebase";
 import type { Group, Expense, Member } from "@/types";
 import { useCurrentMember } from "@/hooks/useCurrentMember";
+import { addRecentGroup } from "@/hooks/useRecentGroups";
 import { calculateDebts, getMemberBalance } from "@/lib/debt-calculator";
 import type { Debt } from "@/types";
 
@@ -69,6 +70,18 @@ export function GroupProvider({ children }: { children: ReactNode }) {
 
     return unsubscribe;
   }, [groupId]);
+
+  // Save to recent groups when loaded
+  useEffect(() => {
+    if (group && groupId) {
+      addRecentGroup({
+        id: groupId,
+        name: group.name,
+        memberCount: group.members.length,
+        lastVisited: Date.now(),
+      });
+    }
+  }, [group, groupId]);
 
   // Listen to expenses sub-collection
   useEffect(() => {
