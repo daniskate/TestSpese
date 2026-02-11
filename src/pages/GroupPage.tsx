@@ -220,8 +220,8 @@ export function GroupPage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-semibold">
-                        {formatEUR(expense.amount)}
+                      <p className={`text-sm font-semibold ${expense.isIncome ? 'text-green-600' : ''}`}>
+                        {expense.isIncome ? '+' : ''}{formatEUR(expense.amount)}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {expense.type === "shared" ? "Condivisa" : "Personale"}
