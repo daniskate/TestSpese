@@ -2,15 +2,11 @@
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
 
+// Importa la configurazione generata automaticamente
+importScripts('/firebase-sw-config.js');
+
 // Initialize Firebase in the service worker
-firebase.initializeApp({
-  apiKey: "***REMOVED***",
-  authDomain: "studio-6659628549-fb7cd.firebaseapp.com",
-  projectId: "studio-6659628549-fb7cd",
-  storageBucket: "studio-6659628549-fb7cd.firebasestorage.app",
-  messagingSenderId: "421879343253",
-  appId: "1:421879343253:web:92483a4f2400b92b8e139c"
-});
+firebase.initializeApp(self.firebaseConfig);
 
 const messaging = firebase.messaging();
 

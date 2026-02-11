@@ -3,6 +3,7 @@ dist
 dist-ssr
 *.local
 .env
+public/firebase-sw-config.js
 
 # Editor directories and files
 .vscode/*
