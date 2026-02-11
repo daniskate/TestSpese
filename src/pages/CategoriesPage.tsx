@@ -7,10 +7,19 @@ import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Category } from "@/types";
 
+const CATEGORY_EMOJIS = [
+  "🍕", "🍔", "🍟", "🌮", "🍜", "🍱", "🍣", "🥗", "🍰", "☕",
+  "🚗", "🚕", "🚌", "✈️", "🏠", "🏥", "💊", "🎬", "🎮", "📚",
+  "👕", "👗", "👠", "💄", "💰", "💳", "🎁", "🛒", "🔧", "⚡",
+  "📱", "💻", "🎵", "🏋️", "⚽", "🎾", "🎨", "📸", "🌴", "🎉",
+];
+
 export function CategoriesPage() {
   const { group } = useGroup();
   const { groupId } = useParams();
   const [newCatName, setNewCatName] = useState("");
+  const [newCatEmoji, setNewCatEmoji] = useState("📌");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [editingCategoryColor, setEditingCategoryColor] = useState<string | null>(null);
 
   if (!group || !groupId) return null;
@@ -23,13 +32,15 @@ export function CategoriesPage() {
     const newCat: Category = {
       id: generateCategoryId(),
       name: trimmed,
-      icon: "\u{1F4CC}",
+      icon: newCatEmoji,
       color: "#6B7280",
       isDefault: false,
     };
 
     await updateCategories(groupId, [...group.categories, newCat]);
     setNewCatName("");
+    setNewCatEmoji("📌");
+    setShowEmojiPicker(false);
     toast.success("Categoria aggiunta");
   };
 
@@ -123,23 +134,63 @@ export function CategoriesPage() {
           </div>
 
           {/* Add Category Form */}
-          <form onSubmit={handleAddCategory} className="flex gap-2">
-            <input
-              type="text"
-              value={newCatName}
-              onChange={(e) => setNewCatName(e.target.value)}
-              placeholder="Nuova categoria..."
-              className="flex-1 rounded-lg border border-input bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-              maxLength={30}
-            />
-            <button
-              type="submit"
-              disabled={!newCatName.trim()}
-              className="rounded-lg bg-primary px-4 py-3 text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
-            >
-              <Plus className="h-5 w-5" />
-            </button>
-          </form>
+          <div className="space-y-3">
+            <form onSubmit={handleAddCategory} className="flex gap-2">
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  className="flex h-12 w-12 items-center justify-center rounded-lg border border-input bg-background text-2xl transition-colors hover:bg-accent"
+                >
+                  {newCatEmoji}
+                </button>
+                {showEmojiPicker && (
+                  <div className="absolute left-0 top-14 z-10 max-h-64 w-64 overflow-y-auto rounded-lg border border-border bg-card p-3 shadow-lg">
+                    <div className="mb-2 flex items-center justify-between">
+                      <p className="text-xs font-medium text-muted-foreground">Scegli un'icona</p>
+                      <button
+                        type="button"
+                        onClick={() => setShowEmojiPicker(false)}
+                        className="text-xs text-muted-foreground hover:text-foreground"
+                      >
+                        Chiudi
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-8 gap-1">
+                      {CATEGORY_EMOJIS.map((emoji) => (
+                        <button
+                          key={emoji}
+                          type="button"
+                          onClick={() => {
+                            setNewCatEmoji(emoji);
+                            setShowEmojiPicker(false);
+                          }}
+                          className="flex h-8 w-8 items-center justify-center rounded transition-colors hover:bg-accent"
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <input
+                type="text"
+                value={newCatName}
+                onChange={(e) => setNewCatName(e.target.value)}
+                placeholder="Nuova categoria..."
+                className="flex-1 rounded-lg border border-input bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                maxLength={30}
+              />
+              <button
+                type="submit"
+                disabled={!newCatName.trim()}
+                className="rounded-lg bg-primary px-4 py-3 text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+              >
+                <Plus className="h-5 w-5" />
+              </button>
+            </form>
+          </div>
         </section>
       </div>
     </div>
