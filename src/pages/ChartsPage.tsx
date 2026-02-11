@@ -286,18 +286,22 @@ export function ChartsPage() {
                     </BarChart>
                   </ResponsiveContainer>
                   <div className="mt-4 space-y-2">
-                    {memberData.map((item, i) => (
-                      <div key={i} className="flex items-center justify-between rounded-lg bg-muted p-2">
-                        <span className="text-sm font-medium">{item.name}</span>
-                        <div className="flex gap-3 text-xs">
-                          <span className="text-green-600">+{formatEUR(item.income)}</span>
-                          <span className="text-red-600">-{formatEUR(item.expenses)}</span>
-                          <span className={`font-semibold ${item.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            = {item.balance >= 0 ? '+' : ''}{formatEUR(item.balance)}
-                          </span>
+                    {memberData.map((item, i) => {
+                      // Type assertion: we know this is personal data with income/expenses/balance
+                      const personalData = item as { name: string; income: number; expenses: number; balance: number; color: string };
+                      return (
+                        <div key={i} className="flex items-center justify-between rounded-lg bg-muted p-2">
+                          <span className="text-sm font-medium">{personalData.name}</span>
+                          <div className="flex gap-3 text-xs">
+                            <span className="text-green-600">+{formatEUR(personalData.income)}</span>
+                            <span className="text-red-600">-{formatEUR(personalData.expenses)}</span>
+                            <span className={`font-semibold ${personalData.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              = {personalData.balance >= 0 ? '+' : ''}{formatEUR(personalData.balance)}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </>
               ) : (
