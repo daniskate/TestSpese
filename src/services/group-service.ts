@@ -6,6 +6,9 @@ import {
   serverTimestamp,
   arrayUnion,
   arrayRemove,
+  deleteDoc,
+  collection,
+  getDocs,
 } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import type { Group, Member, Settlement } from "@/types";
@@ -123,6 +126,45 @@ export async function removeSettlement(
 ): Promise<void> {
   await updateDoc(doc(db, "groups", groupId), {
     settlements: arrayRemove(settlement),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function deleteGroup(groupId: string): Promise<void> {
+  // Delete all expenses in the subcollection first
+  const expensesRef = collection(db, "groups", groupId, "expenses");
+  const expensesSnapshot = await getDocs(expensesRef);
+
+  // Delete all expense documents
+  const deletePromises = expensesSnapshot.docs.map((doc) => deleteDoc(doc.ref));
+  await Promise.all(deletePromises);
+
+  // Delete the group document itself
+  await deleteDoc(doc(db, "groups", groupId));
+}
+
+export async function updateGroupColor(
+  groupId: string,
+  color: string
+): Promise<void> {
+  await updateDoc(doc(db, "groups", groupId), {
+    color,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function updateMemberColor(
+  groupId: string,
+  memberId: string,
+  color: string,
+  members: Member[]
+): Promise<void> {
+  const updatedMembers = members.map((m) =>
+    m.id === memberId ? { ...m, color } : m
+  );
+
+  await updateDoc(doc(db, "groups", groupId), {
+    members: updatedMembers,
     updatedAt: serverTimestamp(),
   });
 }

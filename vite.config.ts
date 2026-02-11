@@ -16,10 +16,10 @@ export default defineConfig({
         "pwa-maskable-512x512.png",
       ],
       manifest: {
-        name: "SpeseDivise - Gestione Spese Condivise",
-        short_name: "SpeseDivise",
+        name: "SplitEase - Gestione Spese Condivise",
+        short_name: "SplitEase",
         description: "Gestisci le spese condivise con il tuo gruppo",
-        theme_color: "#2563EB",
+        theme_color: "#10B981",
         background_color: "#FFFFFF",
         display: "standalone",
         orientation: "portrait",

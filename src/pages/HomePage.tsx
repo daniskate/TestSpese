@@ -50,7 +50,7 @@ export function HomePage() {
             alt="Splitease"
             className="mx-auto mb-4 h-16 w-16 rounded-2xl"
           />
-          <h1 className="text-2xl font-bold">SpeseDivise</h1>
+          <h1 className="text-2xl font-bold">SplitEase</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Gestisci le spese condivise con il tuo gruppo in modo semplice e
             veloce.

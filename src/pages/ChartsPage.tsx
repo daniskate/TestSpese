@@ -23,11 +23,14 @@ export function ChartsPage() {
   const [chartTab, setChartTab] = useState<"category" | "member" | "time">(
     "category"
   );
+  const [expenseType, setExpenseType] = useState<"shared" | "personal">("shared");
 
-  const nonSettlementShared = useMemo(
-    () => expenses.filter((e) => !e.isSettlement && e.type === "shared"),
-    [expenses]
+  const filteredExpenses = useMemo(
+    () => expenses.filter((e) => !e.isSettlement && e.type === expenseType),
+    [expenses, expenseType]
   );
+
+  const nonSettlementShared = filteredExpenses;
 
   const categoryData = useMemo(() => {
     if (!group) return [];
@@ -93,7 +96,31 @@ export function ChartsPage() {
 
   return (
     <div className="space-y-4">
-      {/* Tabs */}
+      {/* Expense Type Toggle */}
+      <div className="flex gap-2 rounded-lg bg-muted p-1">
+        <button
+          onClick={() => setExpenseType("shared")}
+          className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+            expenseType === "shared"
+              ? "bg-card text-foreground shadow-sm"
+              : "text-muted-foreground"
+          }`}
+        >
+          Spese condivise
+        </button>
+        <button
+          onClick={() => setExpenseType("personal")}
+          className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+            expenseType === "personal"
+              ? "bg-card text-foreground shadow-sm"
+              : "text-muted-foreground"
+          }`}
+        >
+          Spese personali
+        </button>
+      </div>
+
+      {/* Chart Type Tabs */}
       <div className="flex gap-1 rounded-lg bg-muted p-1">
         {tabs.map((t) => (
           <button
@@ -112,7 +139,7 @@ export function ChartsPage() {
 
       {nonSettlementShared.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-          Aggiungi spese condivise per vedere i grafici.
+          Aggiungi {expenseType === "shared" ? "spese condivise" : "spese personali"} per vedere i grafici.
         </p>
       ) : (
         <div className="rounded-xl border border-border bg-card p-4">
@@ -197,9 +224,9 @@ export function ChartsPage() {
                   <Line
                     type="monotone"
                     dataKey="total"
-                    stroke="#2563EB"
+                    stroke="#10B981"
                     strokeWidth={2}
-                    dot={{ fill: "#2563EB" }}
+                    dot={{ fill: "#10B981" }}
                   />
                 </LineChart>
               </ResponsiveContainer>
