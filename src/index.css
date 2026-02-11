@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  /* Light Mode - Improved */
   --color-primary: #2D7A5F;
   --color-primary-foreground: #FFFFFF;
   --color-secondary: #F5F5F5;
@@ -9,7 +10,7 @@
   --color-accent-yellow-foreground: #1E293B;
   --color-destructive: #EF4444;
   --color-destructive-foreground: #FFFFFF;
-  --color-muted: #F5F5F5;
+  --color-muted: #F3F4F6;
   --color-muted-foreground: #6B7280;
   --color-accent: #F9FAFB;
   --color-accent-foreground: #1E293B;
@@ -20,12 +21,37 @@
   --color-border: #E5E7EB;
   --color-input: #E5E7EB;
   --color-ring: #2D7A5F;
-  --color-background: #F5F5F5;
+  --color-background: #F8F9FA;
   --color-foreground: #1E293B;
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
   --radius-xl: 1.5rem;
+}
+
+/* Dark Mode */
+.dark {
+  --color-primary: #3D9A7A;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #2A2A2A;
+  --color-secondary-foreground: #E5E7EB;
+  --color-accent-yellow: #D9A00E;
+  --color-accent-yellow-foreground: #FFFFFF;
+  --color-destructive: #DC2626;
+  --color-destructive-foreground: #FFFFFF;
+  --color-muted: #2A2A2A;
+  --color-muted-foreground: #9CA3AF;
+  --color-accent: #2A2A2A;
+  --color-accent-foreground: #E5E7EB;
+  --color-card: #1E1E1E;
+  --color-card-foreground: #E5E7EB;
+  --color-popover: #1E1E1E;
+  --color-popover-foreground: #E5E7EB;
+  --color-border: #374151;
+  --color-input: #374151;
+  --color-ring: #3D9A7A;
+  --color-background: #121212;
+  --color-foreground: #E5E7EB;
 }
 
 * {
@@ -38,6 +64,41 @@ body {
   font-family: system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Improved card shadows for depth */
+.shadow-sm {
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05), 0 0 0 1px rgb(0 0 0 / 0.02);
+}
+
+.shadow-md {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.04), 0 0 0 1px rgb(0 0 0 / 0.02);
+}
+
+.shadow-lg {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.06), 0 0 0 1px rgb(0 0 0 / 0.02);
+}
+
+.dark .shadow-sm {
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.3), 0 0 0 1px rgb(255 255 255 / 0.05);
+}
+
+.dark .shadow-md {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3), 0 0 0 1px rgb(255 255 255 / 0.05);
+}
+
+.dark .shadow-lg {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4), 0 0 0 1px rgb(255 255 255 / 0.05);
+}
+
+/* Header gradient */
+.header-gradient {
+  background: linear-gradient(135deg, #2D7A5F 0%, #236149 100%);
+}
+
+.dark .header-gradient {
+  background: linear-gradient(135deg, #3D9A7A 0%, #2D7A5F 100%);
 }
 
 /* Safe area padding for notched devices */

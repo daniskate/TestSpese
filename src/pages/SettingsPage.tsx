@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useGroup } from "@/context/GroupContext";
+import { useTheme } from "@/context/ThemeContext";
 import { MemberAvatar } from "@/components/members/MemberAvatar";
 import {
   addMember,
@@ -15,11 +16,14 @@ import {
   UserPlus,
   Trash2,
   LogOut,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { toast } from "sonner";
 
 export function SettingsPage() {
   const { group, expenses, clearMember } = useGroup();
+  const { theme, toggleTheme } = useTheme();
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
   const [newMemberName, setNewMemberName] = useState("");
@@ -110,6 +114,37 @@ export function SettingsPage() {
         </button>
         <h2 className="text-lg font-semibold">Impostazioni</h2>
       </div>
+
+      {/* Theme Toggle */}
+      <section className="space-y-2">
+        <h3 className="text-sm font-semibold text-muted-foreground">
+          Aspetto
+        </h3>
+        <div className="flex items-center justify-between rounded-lg border border-border bg-card p-3">
+          <div className="flex items-center gap-3">
+            {theme === "dark" ? (
+              <Moon className="h-4 w-4 text-primary" />
+            ) : (
+              <Sun className="h-4 w-4 text-primary" />
+            )}
+            <span className="text-sm">
+              {theme === "dark" ? "Modalità Scura" : "Modalità Chiara"}
+            </span>
+          </div>
+          <button
+            onClick={toggleTheme}
+            className={`relative h-7 w-12 rounded-full transition-colors ${
+              theme === "dark" ? "bg-primary" : "bg-muted"
+            }`}
+          >
+            <span
+              className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-transform ${
+                theme === "dark" ? "translate-x-6" : "translate-x-1"
+              }`}
+            />
+          </button>
+        </div>
+      </section>
 
       {/* Share */}
       <section className="space-y-2">
