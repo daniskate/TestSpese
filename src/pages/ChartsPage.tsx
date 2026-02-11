@@ -220,8 +220,8 @@ export function ChartsPage() {
                 Spese per categoria
               </h3>
               {expenseType === "personal" ? (
-                // For personal expenses, show breakdown by member
-                <div className="space-y-4">
+                // For personal expenses, show pie chart for each member
+                <div className="space-y-6">
                   {group && (() => {
                     // Group data by member
                     type PersonalCategoryData = { member: string; category: string; value: number; color: string };
@@ -233,27 +233,54 @@ export function ChartsPage() {
                       byMember.get(item.member)!.push(item);
                     });
 
-                    return Array.from(byMember.entries()).map(([member, items]) => (
-                      <div key={member} className="rounded-lg border border-border bg-muted/50 p-3">
-                        <p className="mb-2 text-sm font-semibold">{member}</p>
-                        <div className="space-y-1.5">
-                          {items.map((item, i) => (
-                            <div key={i} className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <div
-                                  className="h-3 w-3 rounded-full"
-                                  style={{ backgroundColor: item.color }}
-                                />
-                                <span className="text-sm">{item.category}</span>
+                    return Array.from(byMember.entries()).map(([member, items]) => {
+                      // Transform data for pie chart
+                      const pieData = items.map(item => ({
+                        name: item.category,
+                        value: item.value,
+                        color: item.color,
+                      }));
+
+                      return (
+                        <div key={member} className="rounded-lg border border-border bg-card p-4">
+                          <h4 className="mb-4 text-center text-sm font-semibold">{member}</h4>
+                          <ResponsiveContainer width="100%" height={220}>
+                            <PieChart>
+                              <Pie
+                                data={pieData}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={50}
+                                outerRadius={80}
+                                paddingAngle={2}
+                                dataKey="value"
+                              >
+                                {pieData.map((entry, index) => (
+                                  <Cell key={index} fill={entry.color} />
+                                ))}
+                              </Pie>
+                              <Tooltip formatter={(value) => formatEUR(Number(value))} />
+                            </PieChart>
+                          </ResponsiveContainer>
+                          <div className="mt-3 space-y-1.5">
+                            {items.map((item, i) => (
+                              <div key={i} className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <div
+                                    className="h-3 w-3 rounded-full"
+                                    style={{ backgroundColor: item.color }}
+                                  />
+                                  <span className="text-sm">{item.category}</span>
+                                </div>
+                                <span className="text-sm font-medium">
+                                  {formatEUR(item.value)}
+                                </span>
                               </div>
-                              <span className="text-sm font-medium">
-                                {formatEUR(item.value)}
-                              </span>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    ));
+                      );
+                    });
                   })()}
                 </div>
               ) : (
