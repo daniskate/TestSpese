@@ -2,7 +2,13 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useGroup } from "@/context/GroupContext";
 import { MemberAvatar } from "@/components/members/MemberAvatar";
-import { addMember, updateCategories } from "@/services/group-service";
+import {
+  addMember,
+  updateCategories,
+  deleteGroup,
+  updateMemberColor,
+  updateGroupColor,
+} from "@/services/group-service";
 import { exportExpensesToCSV } from "@/lib/csv-export";
 import { generateCategoryId } from "@/lib/group-id";
 import {
@@ -24,6 +30,8 @@ export function SettingsPage() {
   const [newMemberName, setNewMemberName] = useState("");
   const [newCatName, setNewCatName] = useState("");
   const [addingMember, setAddingMember] = useState(false);
+  const [editingMemberColor, setEditingMemberColor] = useState<string | null>(null);
+  const [editingCategoryColor, setEditingCategoryColor] = useState<string | null>(null);
 
   if (!group || !groupId) return null;
 
@@ -100,6 +108,57 @@ export function SettingsPage() {
     navigate(`/g/${groupId}`);
   };
 
+  const handleDeleteGroup = async () => {
+    if (!confirm(`Sei sicuro di voler eliminare il gruppo "${group.name}"? Questa azione è irreversibile e eliminerà tutte le spese.`)) {
+      return;
+    }
+
+    try {
+      await deleteGroup(groupId);
+      clearMember();
+      toast.success("Gruppo eliminato");
+      navigate("/");
+    } catch (error) {
+      console.error("Error deleting group:", error);
+      toast.error("Errore nell'eliminazione del gruppo");
+    }
+  };
+
+  const handleMemberColorChange = async (memberId: string, newColor: string) => {
+    try {
+      await updateMemberColor(groupId, memberId, newColor, group.members);
+      setEditingMemberColor(null);
+      toast.success("Colore aggiornato");
+    } catch (error) {
+      console.error("Error updating member color:", error);
+      toast.error("Errore nell'aggiornamento del colore");
+    }
+  };
+
+  const handleCategoryColorChange = async (categoryId: string, newColor: string) => {
+    try {
+      const updatedCategories = group.categories.map((cat) =>
+        cat.id === categoryId ? { ...cat, color: newColor } : cat
+      );
+      await updateCategories(groupId, updatedCategories);
+      setEditingCategoryColor(null);
+      toast.success("Colore categoria aggiornato");
+    } catch (error) {
+      console.error("Error updating category color:", error);
+      toast.error("Errore nell'aggiornamento del colore");
+    }
+  };
+
+  const handleGroupColorChange = async (newColor: string) => {
+    try {
+      await updateGroupColor(groupId, newColor);
+      toast.success("Colore gruppo aggiornato");
+    } catch (error) {
+      console.error("Error updating group color:", error);
+      toast.error("Errore nell'aggiornamento del colore");
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
@@ -111,6 +170,25 @@ export function SettingsPage() {
         </button>
         <h2 className="text-lg font-semibold">Impostazioni</h2>
       </div>
+
+      {/* Group Color */}
+      <section className="space-y-2">
+        <h3 className="text-sm font-semibold text-muted-foreground">
+          Colore del gruppo
+        </h3>
+        <div className="flex items-center gap-3 rounded-lg border border-border bg-card p-3">
+          <div
+            className="h-10 w-10 rounded-lg border-2 border-border"
+            style={{ backgroundColor: group.color || "#10B981" }}
+          />
+          <input
+            type="color"
+            value={group.color || "#10B981"}
+            onChange={(e) => handleGroupColorChange(e.target.value)}
+            className="h-10 flex-1 cursor-pointer rounded-lg border border-input bg-background"
+          />
+        </div>
+      </section>
 
       {/* Share */}
       <section className="space-y-2">
@@ -133,10 +211,36 @@ export function SettingsPage() {
           {group.members.map((m) => (
             <div
               key={m.id}
-              className="flex items-center gap-3 rounded-lg border border-border bg-card p-3"
+              className="flex items-center justify-between rounded-lg border border-border bg-card p-3"
             >
-              <MemberAvatar name={m.name} color={m.color} size="sm" />
-              <span className="text-sm">{m.name}</span>
+              <div className="flex items-center gap-3">
+                <MemberAvatar name={m.name} color={m.color} size="sm" />
+                <span className="text-sm">{m.name}</span>
+              </div>
+              <div className="relative">
+                <button
+                  onClick={() => setEditingMemberColor(m.id)}
+                  className="h-8 w-8 rounded-lg border-2 border-border transition-transform hover:scale-110"
+                  style={{ backgroundColor: m.color }}
+                  aria-label="Cambia colore"
+                />
+                {editingMemberColor === m.id && (
+                  <div className="absolute right-0 top-10 z-10 rounded-lg border border-border bg-card p-3 shadow-lg">
+                    <input
+                      type="color"
+                      value={m.color}
+                      onChange={(e) => handleMemberColorChange(m.id, e.target.value)}
+                      className="h-10 w-32 cursor-pointer rounded border-none"
+                    />
+                    <button
+                      onClick={() => setEditingMemberColor(null)}
+                      className="mt-2 w-full rounded-md bg-muted px-3 py-1 text-xs"
+                    >
+                      Chiudi
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -171,10 +275,30 @@ export function SettingsPage() {
               className="flex items-center justify-between rounded-lg border border-border bg-card p-2.5"
             >
               <div className="flex items-center gap-2">
-                <div
-                  className="h-3 w-3 rounded-full"
-                  style={{ backgroundColor: cat.color }}
-                />
+                <div className="relative">
+                  <button
+                    onClick={() => setEditingCategoryColor(cat.id)}
+                    className="h-6 w-6 rounded-full border-2 border-border transition-transform hover:scale-110"
+                    style={{ backgroundColor: cat.color }}
+                    aria-label="Cambia colore"
+                  />
+                  {editingCategoryColor === cat.id && (
+                    <div className="absolute left-0 top-8 z-10 rounded-lg border border-border bg-card p-3 shadow-lg">
+                      <input
+                        type="color"
+                        value={cat.color}
+                        onChange={(e) => handleCategoryColorChange(cat.id, e.target.value)}
+                        className="h-10 w-32 cursor-pointer rounded border-none"
+                      />
+                      <button
+                        onClick={() => setEditingCategoryColor(null)}
+                        className="mt-2 w-full rounded-md bg-muted px-3 py-1 text-xs"
+                      >
+                        Chiudi
+                      </button>
+                    </div>
+                  )}
+                </div>
                 <span className="text-sm">
                   {cat.icon} {cat.name}
                 </span>
@@ -219,6 +343,20 @@ export function SettingsPage() {
         >
           <Download className="h-4 w-4 text-primary" />
           <span>Esporta spese in CSV</span>
+        </button>
+      </section>
+
+      {/* Delete Group */}
+      <section className="space-y-2">
+        <h3 className="text-sm font-semibold text-muted-foreground">
+          Zona Pericolosa
+        </h3>
+        <button
+          onClick={handleDeleteGroup}
+          className="flex w-full items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600 transition-colors hover:bg-red-100"
+        >
+          <Trash2 className="h-4 w-4" />
+          <span>Elimina gruppo</span>
         </button>
       </section>
 

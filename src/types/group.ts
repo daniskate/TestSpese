@@ -28,6 +28,7 @@ export interface Settlement {
 export interface Group {
   id: string;
   name: string;
+  color?: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
   members: Member[];
