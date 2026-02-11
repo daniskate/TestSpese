@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { createGroupWithMembers } from "@/services/group-service";
+import { MEMBER_COLORS } from "@/lib/default-categories";
 import { Users, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 
 export function CreateGroupForm() {
   const [step, setStep] = useState<"name" | "members">("name");
   const [groupName, setGroupName] = useState("");
+  const [groupColor, setGroupColor] = useState(MEMBER_COLORS[0]!);
   const [memberNames, setMemberNames] = useState<string[]>([]);
   const [newMemberInput, setNewMemberInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -46,7 +48,8 @@ export function CreateGroupForm() {
     try {
       const groupId = await createGroupWithMembers(
         groupName.trim(),
-        memberNames
+        memberNames,
+        groupColor
       );
       toast.success("Gruppo creato!");
       navigate(`/g/${groupId}`);
@@ -74,6 +77,26 @@ export function CreateGroupForm() {
             className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             maxLength={50}
           />
+        </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium">
+            Colore del gruppo
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {MEMBER_COLORS.map((color) => (
+              <button
+                key={color}
+                type="button"
+                onClick={() => setGroupColor(color)}
+                className="h-10 w-10 rounded-full transition-transform hover:scale-110"
+                style={{
+                  backgroundColor: color,
+                  border: groupColor === color ? "3px solid #000" : "2px solid #e5e7eb",
+                  boxShadow: groupColor === color ? "0 0 0 2px #fff" : "none",
+                }}
+              />
+            ))}
+          </div>
         </div>
         <button
           type="submit"

@@ -35,7 +35,8 @@ export async function createGroup(name: string): Promise<string> {
 
 export async function createGroupWithMembers(
   name: string,
-  memberNames: string[]
+  memberNames: string[],
+  color: string
 ): Promise<string> {
   const id = generateGroupId();
   const now = serverTimestamp();
@@ -51,6 +52,7 @@ export async function createGroupWithMembers(
   await setDoc(doc(db, "groups", id), {
     id,
     name,
+    color,
     createdAt: now,
     updatedAt: now,
     members,

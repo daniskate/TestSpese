@@ -111,28 +111,6 @@ export function ChartsPage() {
       }));
   }, [nonSettlementShared]);
 
-  // Calculate totals for personal expenses
-  const personalSummary = useMemo(() => {
-    if (expenseType !== "personal") return null;
-
-    let totalIncome = 0;
-    let totalExpenses = 0;
-
-    for (const exp of nonSettlementShared) {
-      if (exp.isIncome) {
-        totalIncome += exp.amount;
-      } else {
-        totalExpenses += exp.amount;
-      }
-    }
-
-    return {
-      income: Math.round(totalIncome * 100) / 100,
-      expenses: Math.round(totalExpenses * 100) / 100,
-      balance: Math.round((totalIncome - totalExpenses) * 100) / 100,
-    };
-  }, [nonSettlementShared, expenseType]);
-
   if (!group) return null;
 
   const tabs = [
@@ -190,33 +168,6 @@ export function ChartsPage() {
         </p>
       ) : (
         <>
-          {/* Personal Summary Card */}
-          {expenseType === "personal" && personalSummary && (
-            <div className="rounded-xl border border-border bg-card p-4">
-              <h3 className="mb-3 text-sm font-semibold">Riepilogo</h3>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="rounded-lg bg-green-50 p-3 text-center">
-                  <p className="text-xs text-muted-foreground">Entrate</p>
-                  <p className="text-lg font-bold text-green-600">
-                    +{formatEUR(personalSummary.income)}
-                  </p>
-                </div>
-                <div className="rounded-lg bg-red-50 p-3 text-center">
-                  <p className="text-xs text-muted-foreground">Uscite</p>
-                  <p className="text-lg font-bold text-red-600">
-                    -{formatEUR(personalSummary.expenses)}
-                  </p>
-                </div>
-                <div className={`rounded-lg p-3 text-center ${personalSummary.balance >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
-                  <p className="text-xs text-muted-foreground">Bilancio</p>
-                  <p className={`text-lg font-bold ${personalSummary.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {personalSummary.balance >= 0 ? '+' : ''}{formatEUR(personalSummary.balance)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
           <div className="rounded-xl border border-border bg-card p-4">
           {/* Category Pie Chart */}
           {chartTab === "category" && (
