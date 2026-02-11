@@ -1,5 +1,7 @@
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import { initializeApp, getApp } from "firebase/app";
+import type { NotificationPreferences, NotificationType } from "@/types/notification";
+import { DEFAULT_NOTIFICATION_PREFERENCES } from "@/types/notification";
 
 // Get existing Firebase app
 let messaging: ReturnType<typeof getMessaging> | null = null;
@@ -75,14 +77,73 @@ export function onMessageListener() {
 }
 
 // Show notification
-export function showNotification(title: string, body: string, icon?: string) {
+export function showNotification(title: string, body: string, icon?: string, tag?: string) {
   if ("Notification" in window && Notification.permission === "granted") {
     new Notification(title, {
       body,
       icon: icon || "/pwa-192x192.png",
       badge: "/pwa-192x192.png",
-      tag: "splitease-notification",
+      tag: tag || "splitease-notification",
       requireInteraction: false,
     });
   }
+}
+
+// Notification preferences management
+const PREFERENCES_KEY = "notification_preferences";
+
+export function getNotificationPreferences(groupId: string): NotificationPreferences {
+  try {
+    const stored = localStorage.getItem(`${PREFERENCES_KEY}_${groupId}`);
+    if (stored) {
+      return { ...DEFAULT_NOTIFICATION_PREFERENCES, ...JSON.parse(stored) };
+    }
+  } catch (error) {
+    console.error("Error reading notification preferences:", error);
+  }
+  return DEFAULT_NOTIFICATION_PREFERENCES;
+}
+
+export function setNotificationPreferences(groupId: string, preferences: NotificationPreferences): void {
+  try {
+    localStorage.setItem(`${PREFERENCES_KEY}_${groupId}`, JSON.stringify(preferences));
+  } catch (error) {
+    console.error("Error saving notification preferences:", error);
+  }
+}
+
+export function shouldShowNotification(groupId: string, type: NotificationType): boolean {
+  const prefs = getNotificationPreferences(groupId);
+
+  switch (type) {
+    case "expense_added":
+      return prefs.expenses;
+    case "income_added":
+      return prefs.incomes;
+    case "settlement_added":
+      return prefs.settlements;
+    case "member_added":
+    case "member_removed":
+      return prefs.members;
+    case "group_updated":
+      return prefs.groupChanges;
+    default:
+      return true;
+  }
+}
+
+// Enhanced notification function with type checking
+export function showTypedNotification(
+  groupId: string,
+  type: NotificationType,
+  title: string,
+  body: string,
+  icon?: string
+): void {
+  if (!shouldShowNotification(groupId, type)) {
+    return;
+  }
+
+  const tag = `splitease-${type}-${Date.now()}`;
+  showNotification(title, body, icon, tag);
 }
