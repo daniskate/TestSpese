@@ -1,4 +1,4 @@
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router";
 import { Header } from "./Header";
 import { BottomNav } from "./BottomNav";
 import { useGroup } from "@/context/GroupContext";
@@ -6,6 +6,10 @@ import { JoinGroupDialog } from "@/components/group/JoinGroupDialog";
 
 export function AppShell() {
   const { group, loading, error, currentMemberId } = useGroup();
+  const location = useLocation();
+
+  // Don't show header on the main group page (dashboard)
+  const isGroupDashboard = location.pathname.match(/^\/g\/[^/]+$/);
 
   if (loading) {
     return (
@@ -34,8 +38,8 @@ export function AppShell() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 pb-20 pt-4">
+      {!isGroupDashboard && <Header />}
+      <main className={`mx-auto w-full max-w-lg flex-1 ${!isGroupDashboard ? 'px-4 pb-20 pt-4' : 'pb-20'}`}>
         <Outlet />
       </main>
       <BottomNav />

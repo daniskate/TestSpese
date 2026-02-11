@@ -120,7 +120,12 @@ export function getMemberTotalSpending(
     if (expense.isSettlement) continue;
 
     if (expense.type === "personal" && expense.paidByMemberId === memberId) {
-      personal += expense.amount;
+      // If it's an income, subtract from expenses; otherwise add
+      if (expense.isIncome) {
+        personal -= expense.amount;
+      } else {
+        personal += expense.amount;
+      }
     }
 
     if (expense.type === "shared") {

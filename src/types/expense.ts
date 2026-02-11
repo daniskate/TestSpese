@@ -20,4 +20,5 @@ export interface Expense {
   splits: ExpenseSplit[];
   createdByMemberId: string;
   isSettlement: boolean;
+  isIncome?: boolean; // true if this is an income (entrata) transaction
 }

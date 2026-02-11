@@ -34,6 +34,7 @@ export function ExpenseForm({ expense, onClose }: ExpenseFormProps) {
   const [type, setType] = useState<"shared" | "personal">(
     expense?.type ?? "shared"
   );
+  const [isIncome, setIsIncome] = useState(expense?.isIncome ?? false);
   const [splitMethod, setSplitMethod] = useState<
     "equal" | "custom" | "percentage"
   >(expense?.splitMethod ?? "equal");
@@ -119,14 +120,15 @@ export function ExpenseForm({ expense, onClose }: ExpenseFormProps) {
         splitMethod: type === "personal" ? ("equal" as const) : splitMethod,
         splits,
         createdByMemberId: currentMemberId!,
+        ...(type === "personal" && isIncome && { isIncome: true }),
       };
 
       if (expense) {
         await updateExpense(groupId, expense.id, data);
-        toast.success("Spesa aggiornata");
+        toast.success(isIncome ? "Entrata aggiornata" : "Spesa aggiornata");
       } else {
         await addExpense(groupId, data);
-        toast.success("Spesa aggiunta");
+        toast.success(isIncome ? "Entrata aggiunta" : "Spesa aggiunta");
       }
       onClose();
     } catch {
@@ -149,7 +151,9 @@ export function ExpenseForm({ expense, onClose }: ExpenseFormProps) {
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <h2 className="text-lg font-semibold">
-          {expense ? "Modifica spesa" : "Nuova spesa"}
+          {expense
+            ? (isIncome ? "Modifica entrata" : "Modifica spesa")
+            : (isIncome ? "Nuova entrata" : "Nuova spesa")}
         </h2>
         <button
           onClick={onClose}
@@ -241,7 +245,10 @@ export function ExpenseForm({ expense, onClose }: ExpenseFormProps) {
           <div className="flex gap-2">
             <button
               type="button"
-              onClick={() => setType("shared")}
+              onClick={() => {
+                setType("shared");
+                setIsIncome(false);
+              }}
               className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
                 type === "shared"
                   ? "border-primary bg-primary/10 text-primary"
@@ -263,6 +270,37 @@ export function ExpenseForm({ expense, onClose }: ExpenseFormProps) {
             </button>
           </div>
         </div>
+
+        {/* Income/Expense toggle (only for personal) */}
+        {type === "personal" && (
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Transazione</label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setIsIncome(false)}
+                className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                  !isIncome
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border text-muted-foreground hover:bg-accent"
+                }`}
+              >
+                Spesa
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsIncome(true)}
+                className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                  isIncome
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border text-muted-foreground hover:bg-accent"
+                }`}
+              >
+                Entrata
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Split (only for shared) */}
         {type === "shared" && (

@@ -88,7 +88,7 @@ export function ExpensesPage() {
       {/* Shared Tab */}
       {tab === "shared" && (
         <>
-          <div className="rounded-xl border border-border bg-card p-4">
+          <div className="rounded-2xl bg-card p-4 shadow-md">
             <p className="text-sm text-muted-foreground">
               Totale spese condivise
             </p>
@@ -111,7 +111,7 @@ export function ExpensesPage() {
                 return (
                   <div
                     key={expense.id}
-                    className="flex items-center gap-3 rounded-lg border border-border bg-card p-3"
+                    className="flex items-center gap-3 rounded-xl bg-card p-4 shadow-sm"
                   >
                     <span className="text-lg">{category?.icon ?? "\u{1F4E6}"}</span>
                     <div className="flex-1 min-w-0">
@@ -161,7 +161,7 @@ export function ExpensesPage() {
           {memberSpending.map(({ member, personal, sharedQuota, total }) => (
             <div
               key={member.id}
-              className="rounded-xl border border-border bg-card p-4"
+              className="rounded-2xl bg-card p-4 shadow-md"
             >
               <div className="flex items-center gap-3 mb-3">
                 <MemberAvatar name={member.name} color={member.color} />
@@ -209,7 +209,7 @@ export function ExpensesPage() {
                   return (
                     <div
                       key={expense.id}
-                      className="flex items-center gap-3 rounded-lg border border-border bg-card p-3"
+                      className="flex items-center gap-3 rounded-xl bg-card p-4 shadow-sm"
                     >
                       <span className="text-lg">{category?.icon ?? "\u{1F4E6}"}</span>
                       <div className="flex-1 min-w-0">
@@ -224,8 +224,8 @@ export function ExpensesPage() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-semibold">
-                          {formatEUR(expense.amount)}
+                        <p className={`text-sm font-semibold ${expense.isIncome ? 'text-green-600' : ''}`}>
+                          {expense.isIncome ? '+' : ''}{formatEUR(expense.amount)}
                         </p>
                       </div>
                       <div className="flex gap-1">
@@ -253,13 +253,14 @@ export function ExpensesPage() {
         </div>
       )}
 
-      {/* FAB */}
+      {/* Yellow FAB */}
       <button
         onClick={openForm}
-        className="fixed bottom-20 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105 active:scale-95"
+        className="fixed bottom-20 right-4 z-30 flex h-16 w-16 items-center justify-center rounded-full shadow-xl transition-all hover:scale-105 active:scale-95"
+        style={{ backgroundColor: "#FDB913" }}
         aria-label="Aggiungi spesa"
       >
-        <Plus className="h-6 w-6" />
+        <Plus className="h-7 w-7 text-gray-800" />
       </button>
 
       {/* Form overlay */}
