@@ -13,7 +13,7 @@ export function Header() {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: "SpeseDivise",
+          title: "SplitEase",
           text: `Unisciti al gruppo "${group?.name}" per gestire le spese!`,
           url,
         });
@@ -38,7 +38,7 @@ export function Header() {
             <Home className="h-5 w-5" />
           </button>
           <h1 className="truncate text-lg font-semibold">
-            {group?.name ?? "SpeseDivise"}
+            {group?.name ?? "SplitEase"}
           </h1>
         </div>
         <div className="flex items-center gap-1">
