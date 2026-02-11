@@ -29,6 +29,7 @@ export interface Group {
   id: string;
   name: string;
   color?: string;
+  icon?: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
   members: Member[];

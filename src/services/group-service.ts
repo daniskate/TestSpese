@@ -36,7 +36,8 @@ export async function createGroup(name: string): Promise<string> {
 export async function createGroupWithMembers(
   name: string,
   memberNames: string[],
-  color: string
+  color: string,
+  icon: string = "👥"
 ): Promise<string> {
   const id = generateGroupId();
   const now = serverTimestamp();
@@ -53,6 +54,7 @@ export async function createGroupWithMembers(
     id,
     name,
     color,
+    icon,
     createdAt: now,
     updatedAt: now,
     members,
@@ -96,13 +98,14 @@ export async function addSettlement(
   amount: number,
   note: string = ""
 ): Promise<void> {
+  const now = new Date();
   const settlement: Settlement = {
     id: generateSettlementId(),
     fromMemberId,
     toMemberId,
     amount,
-    date: serverTimestamp() as unknown as Timestamp,
-    createdAt: serverTimestamp() as unknown as Timestamp,
+    date: now as unknown as Timestamp,
+    createdAt: now as unknown as Timestamp,
     note,
   };
 
