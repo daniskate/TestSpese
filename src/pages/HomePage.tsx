@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { collection, query, orderBy, getDocs } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { CreateGroupForm } from "@/components/group/CreateGroupForm";
-import { Receipt, Users, ChevronRight, Loader2 } from "lucide-react";
+import { Users, ChevronRight, Loader2 } from "lucide-react";
 
 interface GroupSummary {
   id: string;
@@ -45,9 +45,11 @@ export function HomePage() {
     <div className="flex min-h-screen flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
-            <Receipt className="h-8 w-8" />
-          </div>
+          <img
+            src="/pwa-192x192.png"
+            alt="Splitease"
+            className="mx-auto mb-4 h-16 w-16 rounded-2xl"
+          />
           <h1 className="text-2xl font-bold">SpeseDivise</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Gestisci le spese condivise con il tuo gruppo in modo semplice e
