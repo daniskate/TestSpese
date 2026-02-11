@@ -78,7 +78,8 @@ export function CreateGroupForm() {
         <button
           type="submit"
           disabled={!groupName.trim()}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all disabled:opacity-50"
+          style={{ backgroundColor: "#FDB913", color: "#1E293B" }}
         >
           <Users className="h-4 w-4" />
           Continua
@@ -161,7 +162,8 @@ export function CreateGroupForm() {
         <button
           type="submit"
           disabled={memberNames.length === 0 || loading}
-          className="flex-1 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+          className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all disabled:opacity-50"
+          style={{ backgroundColor: "#FDB913", color: "#1E293B" }}
         >
           {loading ? "Creazione..." : "Crea Gruppo"}
         </button>

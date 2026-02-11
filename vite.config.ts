@@ -19,7 +19,7 @@ export default defineConfig({
         name: "SplitEase - Gestione Spese Condivise",
         short_name: "SplitEase",
         description: "Gestisci le spese condivise con il tuo gruppo",
-        theme_color: "#10B981",
+        theme_color: "#2D7A5F",
         background_color: "#FFFFFF",
         display: "standalone",
         orientation: "portrait",

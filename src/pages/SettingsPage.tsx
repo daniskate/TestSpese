@@ -179,11 +179,11 @@ export function SettingsPage() {
         <div className="flex items-center gap-3 rounded-lg border border-border bg-card p-3">
           <div
             className="h-10 w-10 rounded-lg border-2 border-border"
-            style={{ backgroundColor: group.color || "#10B981" }}
+            style={{ backgroundColor: group.color || "#2D7A5F" }}
           />
           <input
             type="color"
-            value={group.color || "#10B981"}
+            value={group.color || "#2D7A5F"}
             onChange={(e) => handleGroupColorChange(e.target.value)}
             className="h-10 flex-1 cursor-pointer rounded-lg border border-input bg-background"
           />

@@ -224,9 +224,9 @@ export function ChartsPage() {
                   <Line
                     type="monotone"
                     dataKey="total"
-                    stroke="#10B981"
+                    stroke="#2D7A5F"
                     strokeWidth={2}
-                    dot={{ fill: "#10B981" }}
+                    dot={{ fill: "#2D7A5F" }}
                   />
                 </LineChart>
               </ResponsiveContainer>
