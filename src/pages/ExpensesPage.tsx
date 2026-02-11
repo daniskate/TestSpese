@@ -224,8 +224,8 @@ export function ExpensesPage() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-semibold">
-                          {formatEUR(expense.amount)}
+                        <p className={`text-sm font-semibold ${expense.isIncome ? 'text-green-600' : ''}`}>
+                          {expense.isIncome ? '+' : ''}{formatEUR(expense.amount)}
                         </p>
                       </div>
                       <div className="flex gap-1">
