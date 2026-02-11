@@ -10,6 +10,7 @@ interface GroupSummary {
   name: string;
   memberCount: number;
   color?: string;
+  icon?: string;
 }
 
 export function HomePage() {
@@ -31,6 +32,7 @@ export function HomePage() {
             name: d.name as string,
             memberCount: Array.isArray(d.members) ? d.members.length : 0,
             color: d.color as string | undefined,
+            icon: d.icon as string | undefined,
           };
         });
         setGroups(data);
@@ -78,13 +80,17 @@ export function HomePage() {
                   >
                     <div className="flex items-center gap-3">
                       <div
-                        className="flex h-10 w-10 items-center justify-center rounded-lg"
+                        className="flex h-10 w-10 items-center justify-center rounded-lg text-lg"
                         style={{
                           backgroundColor: g.color || "#2D7A5F",
                           color: "#ffffff"
                         }}
                       >
-                        <Users className="h-5 w-5" />
+                        {g.icon ? (
+                          <span className="text-xl">{g.icon}</span>
+                        ) : (
+                          <Users className="h-5 w-5" />
+                        )}
                       </div>
                       <div>
                         <p className="text-sm font-medium">{g.name}</p>

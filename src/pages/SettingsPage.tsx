@@ -133,13 +133,13 @@ export function SettingsPage() {
           </div>
           <button
             onClick={toggleTheme}
-            className={`relative h-7 w-12 rounded-full transition-colors ${
+            className={`relative h-7 w-14 flex-shrink-0 rounded-full transition-colors ${
               theme === "dark" ? "bg-primary" : "bg-muted"
             }`}
           >
             <span
               className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-transform ${
-                theme === "dark" ? "translate-x-6" : "translate-x-1"
+                theme === "dark" ? "translate-x-[34px]" : "translate-x-1"
               }`}
             />
           </button>

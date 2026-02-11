@@ -34,6 +34,50 @@ export function ChartsPage() {
 
   const categoryData = useMemo(() => {
     if (!group) return [];
+
+    // For personal expenses, show breakdown by member
+    if (expenseType === "personal") {
+      const memberCategoryMap = new Map<string, Map<string, number>>();
+
+      // Initialize map for each member
+      for (const member of group.members) {
+        memberCategoryMap.set(member.id, new Map());
+      }
+
+      // Aggregate expenses by member and category
+      for (const exp of nonSettlementShared) {
+        if (exp.isIncome) continue; // Skip income for category breakdown
+        const memberMap = memberCategoryMap.get(exp.paidByMemberId);
+        if (memberMap) {
+          const current = memberMap.get(exp.categoryId) ?? 0;
+          memberMap.set(exp.categoryId, current + exp.amount);
+        }
+      }
+
+      // Create data for each member with their category expenses
+      const result: Array<{ member: string; category: string; value: number; color: string }> = [];
+
+      for (const member of group.members) {
+        const memberMap = memberCategoryMap.get(member.id);
+        if (!memberMap) continue;
+
+        for (const cat of group.categories) {
+          const value = memberMap.get(cat.id) ?? 0;
+          if (value > 0) {
+            result.push({
+              member: member.name,
+              category: cat.name,
+              value: Math.round(value * 100) / 100,
+              color: cat.color,
+            });
+          }
+        }
+      }
+
+      return result;
+    }
+
+    // For shared expenses, show total by category
     const totals = new Map<string, number>();
 
     for (const exp of nonSettlementShared) {
@@ -49,7 +93,7 @@ export function ChartsPage() {
       }))
       .filter((d) => d.value > 0)
       .sort((a, b) => b.value - a.value);
-  }, [group, nonSettlementShared]);
+  }, [group, nonSettlementShared, expenseType]);
 
   const memberData = useMemo(() => {
     if (!group) return [];
@@ -169,48 +213,90 @@ export function ChartsPage() {
       ) : (
         <>
           <div className="rounded-xl border border-border bg-card p-4">
-          {/* Category Pie Chart */}
+          {/* Category Chart */}
           {chartTab === "category" && (
             <div>
               <h3 className="mb-4 text-sm font-semibold">
                 Spese per categoria
               </h3>
-              <ResponsiveContainer width="100%" height={280}>
-                <PieChart>
-                  <Pie
-                    data={categoryData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={2}
-                    dataKey="value"
-                  >
-                    {categoryData.map((entry, index) => (
-                      <Cell key={index} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(value) => formatEUR(Number(value))}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="mt-4 space-y-2">
-                {categoryData.map((item, i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="h-3 w-3 rounded-full"
-                        style={{ backgroundColor: item.color }}
+              {expenseType === "personal" ? (
+                // For personal expenses, show breakdown by member
+                <div className="space-y-4">
+                  {group && (() => {
+                    // Group data by member
+                    type PersonalCategoryData = { member: string; category: string; value: number; color: string };
+                    const byMember = new Map<string, Array<PersonalCategoryData>>();
+                    (categoryData as Array<PersonalCategoryData>).forEach(item => {
+                      if (!byMember.has(item.member)) {
+                        byMember.set(item.member, []);
+                      }
+                      byMember.get(item.member)!.push(item);
+                    });
+
+                    return Array.from(byMember.entries()).map(([member, items]) => (
+                      <div key={member} className="rounded-lg border border-border bg-muted/50 p-3">
+                        <p className="mb-2 text-sm font-semibold">{member}</p>
+                        <div className="space-y-1.5">
+                          {items.map((item, i) => (
+                            <div key={i} className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div
+                                  className="h-3 w-3 rounded-full"
+                                  style={{ backgroundColor: item.color }}
+                                />
+                                <span className="text-sm">{item.category}</span>
+                              </div>
+                              <span className="text-sm font-medium">
+                                {formatEUR(item.value)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              ) : (
+                // For shared expenses, show pie chart
+                <>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <PieChart>
+                      <Pie
+                        data={categoryData as Array<{ name: string; value: number; color: string }>}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={100}
+                        paddingAngle={2}
+                        dataKey="value"
+                      >
+                        {(categoryData as Array<{ name: string; value: number; color: string }>).map((entry, index) => (
+                          <Cell key={index} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(value) => formatEUR(Number(value))}
                       />
-                      <span className="text-sm">{item.name}</span>
-                    </div>
-                    <span className="text-sm font-medium">
-                      {formatEUR(item.value)}
-                    </span>
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="mt-4 space-y-2">
+                    {(categoryData as Array<{ name: string; value: number; color: string }>).map((item, i) => (
+                      <div key={i} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="h-3 w-3 rounded-full"
+                            style={{ backgroundColor: item.color }}
+                          />
+                          <span className="text-sm">{item.name}</span>
+                        </div>
+                        <span className="text-sm font-medium">
+                          {formatEUR(item.value)}
+                        </span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </>
+              )}
             </div>
           )}
 

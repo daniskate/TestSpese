@@ -5,10 +5,19 @@ import { MEMBER_COLORS } from "@/lib/default-categories";
 import { Users, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 
+const GROUP_EMOJIS = [
+  "🏖️", "🏔️", "🏕️", "🎿", "🏝️", "✈️", "🚗", "🎉", "🎊", "🎈",
+  "🏠", "🏡", "🏢", "🏨", "🏪", "💼", "🎓", "⚽", "🏀", "🎾",
+  "🎮", "🎬", "🎭", "🎨", "📚", "💰", "🍕", "🍔", "☕", "🍺",
+  "🎵", "🎸", "🎤", "🎧", "📱", "💻", "🎯", "🎪", "🌍", "🌟",
+];
+
 export function CreateGroupForm() {
   const [step, setStep] = useState<"name" | "members">("name");
   const [groupName, setGroupName] = useState("");
   const [groupColor, setGroupColor] = useState(MEMBER_COLORS[0]!);
+  const [groupIcon, setGroupIcon] = useState("👥");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [memberNames, setMemberNames] = useState<string[]>([]);
   const [newMemberInput, setNewMemberInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -49,7 +58,8 @@ export function CreateGroupForm() {
       const groupId = await createGroupWithMembers(
         groupName.trim(),
         memberNames,
-        groupColor
+        groupColor,
+        groupIcon
       );
       toast.success("Gruppo creato!");
       navigate(`/g/${groupId}`);
@@ -77,6 +87,49 @@ export function CreateGroupForm() {
             className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             maxLength={50}
           />
+        </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium">
+            Icona del gruppo
+          </label>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              className="flex h-16 w-16 items-center justify-center rounded-lg border-2 border-input bg-background text-4xl transition-all hover:scale-105 hover:border-primary"
+            >
+              {groupIcon}
+            </button>
+            {showEmojiPicker && (
+              <div className="absolute left-0 top-20 z-10 max-h-64 w-72 overflow-y-auto rounded-lg border border-border bg-card p-3 shadow-lg">
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="text-xs font-medium text-muted-foreground">Scegli un'icona</p>
+                  <button
+                    type="button"
+                    onClick={() => setShowEmojiPicker(false)}
+                    className="text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    Chiudi
+                  </button>
+                </div>
+                <div className="grid grid-cols-8 gap-1">
+                  {GROUP_EMOJIS.map((emoji) => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      onClick={() => {
+                        setGroupIcon(emoji);
+                        setShowEmojiPicker(false);
+                      }}
+                      className="flex h-10 w-10 items-center justify-center rounded text-2xl transition-colors hover:bg-accent"
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium">
