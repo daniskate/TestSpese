@@ -233,7 +233,14 @@ export function ChartsPage() {
                       byMember.get(item.member)!.push(item);
                     });
 
-                    return Array.from(byMember.entries()).map(([member, items]) => {
+                    // Show ALL members, even those without expenses
+                    return group.members.map((member) => {
+                      const items = byMember.get(member.name) || [];
+
+                      // Get income/expenses/balance data for this member
+                      const memberStats = (memberData as Array<{ name: string; income: number; expenses: number; balance: number; color: string }>)
+                        .find(m => m.name === member.name);
+
                       // Transform data for pie chart
                       const pieData = items.map(item => ({
                         name: item.category,
@@ -242,42 +249,76 @@ export function ChartsPage() {
                       }));
 
                       return (
-                        <div key={member} className="rounded-lg border border-border bg-card p-4">
-                          <h4 className="mb-4 text-center text-sm font-semibold">{member}</h4>
-                          <ResponsiveContainer width="100%" height={220}>
-                            <PieChart>
-                              <Pie
-                                data={pieData}
-                                cx="50%"
-                                cy="50%"
-                                innerRadius={50}
-                                outerRadius={80}
-                                paddingAngle={2}
-                                dataKey="value"
-                              >
-                                {pieData.map((entry, index) => (
-                                  <Cell key={index} fill={entry.color} />
+                        <div key={member.id} className="rounded-lg border border-border bg-card p-4">
+                          <h4 className="mb-4 text-center text-sm font-semibold">{member.name}</h4>
+                          {items.length > 0 ? (
+                            <>
+                              <ResponsiveContainer width="100%" height={220}>
+                                <PieChart>
+                                  <Pie
+                                    data={pieData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={50}
+                                    outerRadius={80}
+                                    paddingAngle={2}
+                                    dataKey="value"
+                                  >
+                                    {pieData.map((entry, index) => (
+                                      <Cell key={index} fill={entry.color} />
+                                    ))}
+                                  </Pie>
+                                  <Tooltip formatter={(value) => formatEUR(Number(value))} />
+                                </PieChart>
+                              </ResponsiveContainer>
+                              <div className="mt-3 space-y-1.5">
+                                {items.map((item, i) => (
+                                  <div key={i} className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                      <div
+                                        className="h-3 w-3 rounded-full"
+                                        style={{ backgroundColor: item.color }}
+                                      />
+                                      <span className="text-sm">{item.category}</span>
+                                    </div>
+                                    <span className="text-sm font-medium">
+                                      {formatEUR(item.value)}
+                                    </span>
+                                  </div>
                                 ))}
-                              </Pie>
-                              <Tooltip formatter={(value) => formatEUR(Number(value))} />
-                            </PieChart>
-                          </ResponsiveContainer>
-                          <div className="mt-3 space-y-1.5">
-                            {items.map((item, i) => (
-                              <div key={i} className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <div
-                                    className="h-3 w-3 rounded-full"
-                                    style={{ backgroundColor: item.color }}
-                                  />
-                                  <span className="text-sm">{item.category}</span>
-                                </div>
-                                <span className="text-sm font-medium">
-                                  {formatEUR(item.value)}
-                                </span>
                               </div>
-                            ))}
-                          </div>
+                            </>
+                          ) : (
+                            <p className="py-8 text-center text-sm text-muted-foreground">
+                              Nessuna spesa
+                            </p>
+                          )}
+
+                          {/* Income/Expenses/Balance Summary */}
+                          {memberStats && (
+                            <div className="mt-4 border-t border-border pt-3">
+                              <div className="grid grid-cols-3 gap-2 text-center">
+                                <div>
+                                  <p className="text-xs text-muted-foreground">Entrate</p>
+                                  <p className="text-sm font-semibold text-green-600">
+                                    +{formatEUR(memberStats.income)}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-muted-foreground">Uscite</p>
+                                  <p className="text-sm font-semibold text-red-600">
+                                    -{formatEUR(memberStats.expenses)}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-muted-foreground">Bilancio</p>
+                                  <p className={`text-sm font-semibold ${memberStats.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                    {memberStats.balance >= 0 ? '+' : ''}{formatEUR(memberStats.balance)}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       );
                     });
