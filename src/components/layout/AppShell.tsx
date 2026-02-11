@@ -1,12 +1,17 @@
-import { Outlet, useLocation } from "react-router";
+import { Outlet, useLocation, useParams } from "react-router";
 import { Header } from "./Header";
 import { BottomNav } from "./BottomNav";
 import { useGroup } from "@/context/GroupContext";
 import { JoinGroupDialog } from "@/components/group/JoinGroupDialog";
+import { useExpenseNotifications } from "@/hooks/useExpenseNotifications";
 
 export function AppShell() {
   const { group, loading, error, currentMemberId } = useGroup();
+  const { groupId } = useParams<{ groupId: string }>();
   const location = useLocation();
+
+  // Listen for new expenses and show notifications
+  useExpenseNotifications(groupId, group?.name || "");
 
   // Don't show header on the main group page (dashboard)
   const isGroupDashboard = location.pathname.match(/^\/g\/[^/]+$/);

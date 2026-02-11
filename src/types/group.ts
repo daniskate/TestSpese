@@ -35,4 +35,5 @@ export interface Group {
   members: Member[];
   categories: Category[];
   settlements: Settlement[];
+  fcmTokens?: string[]; // Firebase Cloud Messaging tokens for push notifications
 }
