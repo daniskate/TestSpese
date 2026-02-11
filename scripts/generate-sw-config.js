@@ -13,8 +13,11 @@ import dotenv from 'dotenv';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Carica variabili d'ambiente
-dotenv.config({ path: join(__dirname, '..', '.env') });
+// Carica variabili d'ambiente da .env solo se non sono già presenti (sviluppo locale)
+// Su GitHub Actions le variabili sono già impostate dal workflow
+if (!process.env.VITE_FIREBASE_API_KEY) {
+  dotenv.config({ path: join(__dirname, '..', '.env') });
+}
 
 const config = {
   apiKey: process.env.VITE_FIREBASE_API_KEY || '',
