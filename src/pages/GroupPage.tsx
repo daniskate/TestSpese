@@ -47,7 +47,7 @@ export function GroupPage() {
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Green Header */}
-      <div className="bg-primary px-4 pb-8 pt-4 text-primary-foreground">
+      <div className="header-gradient px-4 pb-8 pt-4 text-primary-foreground">
         <div className="mb-6 flex items-center justify-between">
           <button
             onClick={() => navigate("/")}
