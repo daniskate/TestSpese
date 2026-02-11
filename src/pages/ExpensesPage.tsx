@@ -168,19 +168,23 @@ export function ExpensesPage() {
                 <div>
                   <p className="font-semibold">{member.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    Totale effettivo
+                    Bilancio personale
                   </p>
                 </div>
-                <p className="ml-auto text-lg font-bold">{formatEUR(total)}</p>
+                <p className={`ml-auto text-lg font-bold ${total >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {total >= 0 ? '+' : ''}{formatEUR(total)}
+                </p>
               </div>
               <div className="flex gap-4 text-xs">
                 <div className="flex-1 rounded-lg bg-muted p-2">
-                  <p className="text-muted-foreground">Personali</p>
-                  <p className="font-semibold">{formatEUR(personal)}</p>
+                  <p className="text-muted-foreground">Bilancio personale</p>
+                  <p className={`font-semibold ${personal >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {personal >= 0 ? '+' : ''}{formatEUR(personal)}
+                  </p>
                 </div>
                 <div className="flex-1 rounded-lg bg-muted p-2">
                   <p className="text-muted-foreground">Quota condivise</p>
-                  <p className="font-semibold">{formatEUR(sharedQuota)}</p>
+                  <p className="font-semibold text-red-600">-{formatEUR(sharedQuota)}</p>
                 </div>
               </div>
             </div>
@@ -224,8 +228,8 @@ export function ExpensesPage() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className={`text-sm font-semibold ${expense.isIncome ? 'text-green-600' : ''}`}>
-                          {expense.isIncome ? '+' : ''}{formatEUR(expense.amount)}
+                        <p className={`text-sm font-semibold ${expense.isIncome ? 'text-green-600' : 'text-red-600'}`}>
+                          {expense.isIncome ? '+' : '-'}{formatEUR(expense.amount)}
                         </p>
                       </div>
                       <div className="flex gap-1">
