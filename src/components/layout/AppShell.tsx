@@ -4,6 +4,7 @@ import { BottomNav } from "./BottomNav";
 import { useGroup } from "@/context/GroupContext";
 import { JoinGroupDialog } from "@/components/group/JoinGroupDialog";
 import { useExpenseNotifications } from "@/hooks/useExpenseNotifications";
+import { useGroupNotifications } from "@/hooks/useGroupNotifications";
 
 export function AppShell() {
   const { group, loading, error, currentMemberId } = useGroup();
@@ -12,6 +13,9 @@ export function AppShell() {
 
   // Listen for new expenses and show notifications
   useExpenseNotifications(groupId, group?.name || "");
+
+  // Listen for group changes (settlements, members, etc.) and show notifications
+  useGroupNotifications(groupId, currentMemberId);
 
   // Don't show header on the main group page (dashboard)
   const isGroupDashboard = location.pathname.match(/^\/g\/[^/]+$/);

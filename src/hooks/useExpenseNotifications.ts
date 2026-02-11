@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { collection, query, orderBy, limit, onSnapshot } from "firebase/firestore";
 import { db } from "@/config/firebase";
-import { showNotification } from "@/lib/notifications";
+import { showTypedNotification } from "@/lib/notifications";
 import type { Expense } from "@/types";
 
 /**
@@ -43,6 +43,7 @@ export function useExpenseNotifications(groupId: string | undefined, groupName: 
           lastExpenseId.current = doc.id;
 
           // Show notification
+          const notificationType = expense.isIncome ? "income_added" : "expense_added";
           const title = expense.isIncome
             ? `💰 Nuova entrata in ${groupName}`
             : `📝 Nuova spesa in ${groupName}`;
@@ -51,7 +52,7 @@ export function useExpenseNotifications(groupId: string | undefined, groupName: 
             ? `${expense.description}: +€${expense.amount.toFixed(2)}`
             : `${expense.description}: €${expense.amount.toFixed(2)}`;
 
-          showNotification(title, body);
+          showTypedNotification(groupId, notificationType, title, body);
         }
       }
     });
