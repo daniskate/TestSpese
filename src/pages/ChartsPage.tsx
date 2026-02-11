@@ -53,6 +53,31 @@ export function ChartsPage() {
 
   const memberData = useMemo(() => {
     if (!group) return [];
+
+    if (expenseType === "personal") {
+      // For personal expenses, separate income and expenses
+      const incomeByMember = new Map<string, number>();
+      const expensesByMember = new Map<string, number>();
+
+      for (const exp of nonSettlementShared) {
+        const memberId = exp.paidByMemberId;
+        if (exp.isIncome) {
+          incomeByMember.set(memberId, (incomeByMember.get(memberId) ?? 0) + exp.amount);
+        } else {
+          expensesByMember.set(memberId, (expensesByMember.get(memberId) ?? 0) + exp.amount);
+        }
+      }
+
+      return group.members.map((m) => ({
+        name: m.name,
+        income: Math.round((incomeByMember.get(m.id) ?? 0) * 100) / 100,
+        expenses: Math.round((expensesByMember.get(m.id) ?? 0) * 100) / 100,
+        balance: Math.round(((incomeByMember.get(m.id) ?? 0) - (expensesByMember.get(m.id) ?? 0)) * 100) / 100,
+        color: m.color,
+      }));
+    }
+
+    // For shared expenses, use the original logic
     const totals = new Map<string, number>();
 
     for (const exp of nonSettlementShared) {
@@ -67,7 +92,7 @@ export function ChartsPage() {
         color: m.color,
       }))
       .sort((a, b) => b.value - a.value);
-  }, [group, nonSettlementShared]);
+  }, [group, nonSettlementShared, expenseType]);
 
   const timeData = useMemo(() => {
     const daily = new Map<string, number>();
@@ -85,6 +110,28 @@ export function ChartsPage() {
         total: Math.round(total * 100) / 100,
       }));
   }, [nonSettlementShared]);
+
+  // Calculate totals for personal expenses
+  const personalSummary = useMemo(() => {
+    if (expenseType !== "personal") return null;
+
+    let totalIncome = 0;
+    let totalExpenses = 0;
+
+    for (const exp of nonSettlementShared) {
+      if (exp.isIncome) {
+        totalIncome += exp.amount;
+      } else {
+        totalExpenses += exp.amount;
+      }
+    }
+
+    return {
+      income: Math.round(totalIncome * 100) / 100,
+      expenses: Math.round(totalExpenses * 100) / 100,
+      balance: Math.round((totalIncome - totalExpenses) * 100) / 100,
+    };
+  }, [nonSettlementShared, expenseType]);
 
   if (!group) return null;
 
@@ -142,7 +189,35 @@ export function ChartsPage() {
           Aggiungi {expenseType === "shared" ? "spese condivise" : "spese personali"} per vedere i grafici.
         </p>
       ) : (
-        <div className="rounded-xl border border-border bg-card p-4">
+        <>
+          {/* Personal Summary Card */}
+          {expenseType === "personal" && personalSummary && (
+            <div className="rounded-xl border border-border bg-card p-4">
+              <h3 className="mb-3 text-sm font-semibold">Riepilogo</h3>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="rounded-lg bg-green-50 p-3 text-center">
+                  <p className="text-xs text-muted-foreground">Entrate</p>
+                  <p className="text-lg font-bold text-green-600">
+                    +{formatEUR(personalSummary.income)}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-red-50 p-3 text-center">
+                  <p className="text-xs text-muted-foreground">Uscite</p>
+                  <p className="text-lg font-bold text-red-600">
+                    -{formatEUR(personalSummary.expenses)}
+                  </p>
+                </div>
+                <div className={`rounded-lg p-3 text-center ${personalSummary.balance >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
+                  <p className="text-xs text-muted-foreground">Bilancio</p>
+                  <p className={`text-lg font-bold ${personalSummary.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {personalSummary.balance >= 0 ? '+' : ''}{formatEUR(personalSummary.balance)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="rounded-xl border border-border bg-card p-4">
           {/* Category Pie Chart */}
           {chartTab === "category" && (
             <div>
@@ -191,21 +266,56 @@ export function ChartsPage() {
           {/* Member Bar Chart */}
           {chartTab === "member" && (
             <div>
-              <h3 className="mb-4 text-sm font-semibold">Spese per membro</h3>
-              <ResponsiveContainer width="100%" height={280}>
-                <BarChart data={memberData} layout="vertical">
-                  <XAxis type="number" tickFormatter={(v) => `${v}\u20AC`} />
-                  <YAxis type="category" dataKey="name" width={80} />
-                  <Tooltip
-                    formatter={(value) => formatEUR(Number(value))}
-                  />
-                  <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-                    {memberData.map((entry, index) => (
-                      <Cell key={index} fill={entry.color} />
+              <h3 className="mb-4 text-sm font-semibold">
+                {expenseType === "personal" ? "Entrate e uscite per membro" : "Spese per membro"}
+              </h3>
+              {expenseType === "personal" ? (
+                <>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <BarChart data={memberData} layout="vertical">
+                      <XAxis type="number" tickFormatter={(v) => `${v}\u20AC`} />
+                      <YAxis type="category" dataKey="name" width={80} />
+                      <Tooltip
+                        formatter={(value, name) => [
+                          formatEUR(Number(value)),
+                          name === "income" ? "Entrate" : name === "expenses" ? "Uscite" : "Bilancio"
+                        ]}
+                      />
+                      <Bar dataKey="income" fill="#16a34a" radius={[0, 4, 4, 0]} />
+                      <Bar dataKey="expenses" fill="#dc2626" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                  <div className="mt-4 space-y-2">
+                    {memberData.map((item, i) => (
+                      <div key={i} className="flex items-center justify-between rounded-lg bg-muted p-2">
+                        <span className="text-sm font-medium">{item.name}</span>
+                        <div className="flex gap-3 text-xs">
+                          <span className="text-green-600">+{formatEUR(item.income)}</span>
+                          <span className="text-red-600">-{formatEUR(item.expenses)}</span>
+                          <span className={`font-semibold ${item.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            = {item.balance >= 0 ? '+' : ''}{formatEUR(item.balance)}
+                          </span>
+                        </div>
+                      </div>
                     ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+                  </div>
+                </>
+              ) : (
+                <ResponsiveContainer width="100%" height={280}>
+                  <BarChart data={memberData} layout="vertical">
+                    <XAxis type="number" tickFormatter={(v) => `${v}\u20AC`} />
+                    <YAxis type="category" dataKey="name" width={80} />
+                    <Tooltip
+                      formatter={(value) => formatEUR(Number(value))}
+                    />
+                    <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                      {memberData.map((entry, index) => (
+                        <Cell key={index} fill={entry.color} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </div>
           )}
 
@@ -233,6 +343,7 @@ export function ChartsPage() {
             </div>
           )}
         </div>
+        </>
       )}
     </div>
   );

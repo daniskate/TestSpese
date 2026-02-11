@@ -190,7 +190,7 @@ export function ExpensesPage() {
             </div>
           ))}
 
-          {/* List personal expenses */}
+          {/* List personal expenses grouped by member */}
           <h3 className="text-sm font-semibold text-muted-foreground">
             Spese personali
           </h3>
@@ -200,58 +200,76 @@ export function ExpensesPage() {
               Nessuna spesa personale.
             </p>
           ) : (
-            <div className="space-y-2">
-              {nonSettlementExpenses
-                .filter((e) => e.type === "personal")
-                .map((expense) => {
-                  const payer = group.members.find(
-                    (m) => m.id === expense.paidByMemberId
-                  );
-                  const category = group.categories.find(
-                    (c) => c.id === expense.categoryId
-                  );
-                  return (
-                    <div
-                      key={expense.id}
-                      className="flex items-center gap-3 rounded-xl bg-card p-4 shadow-sm"
-                    >
-                      <span className="text-lg">{category?.icon ?? "\u{1F4E6}"}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="truncate text-sm font-medium">
-                          {expense.description}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {payer?.name ?? "?"} &middot;{" "}
-                          {expense.date?.toDate
-                            ? formatDateShort(expense.date.toDate())
-                            : ""}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className={`text-sm font-semibold ${expense.isIncome ? 'text-green-600' : 'text-red-600'}`}>
-                          {expense.isIncome ? '+' : '-'}{formatEUR(expense.amount)}
-                        </p>
-                      </div>
-                      <div className="flex gap-1">
-                        <button
-                          onClick={() => {
-                            setEditingExpense(expense);
-                            setShowForm(true);
-                          }}
-                          className="rounded p-1 text-muted-foreground hover:bg-accent"
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(expense.id)}
-                          className="rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-500"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
+            <div className="space-y-4">
+              {group.members.map((member) => {
+                const memberExpenses = nonSettlementExpenses.filter(
+                  (e) => e.type === "personal" && e.paidByMemberId === member.id
+                );
+
+                if (memberExpenses.length === 0) return null;
+
+                return (
+                  <div key={member.id} className="space-y-2">
+                    {/* Member header */}
+                    <div className="flex items-center gap-2 px-1">
+                      <MemberAvatar name={member.name} color={member.color} size="sm" />
+                      <h4 className="text-sm font-semibold">{member.name}</h4>
+                      <span className="text-xs text-muted-foreground">
+                        ({memberExpenses.length})
+                      </span>
                     </div>
-                  );
-                })}
+
+                    {/* Member's expenses */}
+                    <div className="space-y-2">
+                      {memberExpenses.map((expense) => {
+                        const category = group.categories.find(
+                          (c) => c.id === expense.categoryId
+                        );
+                        return (
+                          <div
+                            key={expense.id}
+                            className="flex items-center gap-3 rounded-xl bg-card p-4 shadow-sm"
+                          >
+                            <span className="text-lg">{category?.icon ?? "\u{1F4E6}"}</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="truncate text-sm font-medium">
+                                {expense.description}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {expense.date?.toDate
+                                  ? formatDateShort(expense.date.toDate())
+                                  : ""}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className={`text-sm font-semibold ${expense.isIncome ? 'text-green-600' : 'text-red-600'}`}>
+                                {expense.isIncome ? '+' : '-'}{formatEUR(expense.amount)}
+                              </p>
+                            </div>
+                            <div className="flex gap-1">
+                              <button
+                                onClick={() => {
+                                  setEditingExpense(expense);
+                                  setShowForm(true);
+                                }}
+                                className="rounded p-1 text-muted-foreground hover:bg-accent"
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(expense.id)}
+                                className="rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-500"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
