@@ -4,14 +4,13 @@ import { MemberAvatar } from "@/components/members/MemberAvatar";
 import { formatEUR } from "@/lib/currency";
 import { formatDateShort } from "@/lib/format";
 import { Plus, TrendingUp, TrendingDown, Settings, Home } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
 export function GroupPage() {
   const { group, expenses, getMemberBalanceValue } = useGroup();
   const { groupId } = useParams();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<"expenses" | "income">("expenses");
 
   if (!group) return null;
 
@@ -67,33 +66,9 @@ export function GroupPage() {
           </button>
         </div>
 
-        {/* Tabs */}
-        <div className="mb-6 flex gap-8">
-          <button
-            onClick={() => setActiveTab("expenses")}
-            className={`pb-2 text-sm font-medium transition-colors ${
-              activeTab === "expenses"
-                ? "border-b-2 border-white"
-                : "opacity-60"
-            }`}
-          >
-            SPESE
-          </button>
-          <button
-            onClick={() => setActiveTab("income")}
-            className={`pb-2 text-sm font-medium transition-colors ${
-              activeTab === "income"
-                ? "border-b-2 border-white"
-                : "opacity-60"
-            }`}
-          >
-            ENTRATE
-          </button>
-        </div>
-
         {/* Balance */}
         <div className="text-center">
-          <p className="mb-1 text-sm opacity-90">Totale</p>
+          <p className="mb-2 text-sm font-medium opacity-90">Spese Condivise</p>
           <p className="text-4xl font-bold">{formatEUR(totalShared)}</p>
         </div>
       </div>
