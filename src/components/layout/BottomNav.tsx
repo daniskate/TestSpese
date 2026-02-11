@@ -1,5 +1,5 @@
 import { NavLink, useParams } from "react-router";
-import { LayoutDashboard, Receipt, ArrowLeftRight, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Receipt, ArrowLeftRight, BarChart3, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -7,6 +7,7 @@ const navItems = [
   { to: "spese", icon: Receipt, label: "Spese" },
   { to: "debiti", icon: ArrowLeftRight, label: "Debiti" },
   { to: "grafici", icon: BarChart3, label: "Grafici" },
+  { to: "categorie", icon: Tag, label: "Categorie" },
 ];
 
 export function BottomNav() {

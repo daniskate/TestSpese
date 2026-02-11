@@ -9,6 +9,7 @@ interface GroupSummary {
   id: string;
   name: string;
   memberCount: number;
+  color?: string;
 }
 
 export function HomePage() {
@@ -29,6 +30,7 @@ export function HomePage() {
             id: d.id as string,
             name: d.name as string,
             memberCount: Array.isArray(d.members) ? d.members.length : 0,
+            color: d.color as string | undefined,
           };
         });
         setGroups(data);
@@ -75,7 +77,13 @@ export function HomePage() {
                     className="flex items-center justify-between rounded-2xl bg-card p-4 shadow-md transition-all hover:shadow-lg"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <div
+                        className="flex h-10 w-10 items-center justify-center rounded-lg"
+                        style={{
+                          backgroundColor: g.color || "#2D7A5F",
+                          color: "#ffffff"
+                        }}
+                      >
                         <Users className="h-5 w-5" />
                       </div>
                       <div>
