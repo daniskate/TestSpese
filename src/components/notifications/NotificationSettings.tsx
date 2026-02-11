@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Bell, BellOff } from "lucide-react";
-import { requestNotificationPermission } from "@/lib/notifications";
+import { Bell, BellOff, ChevronDown, ChevronUp } from "lucide-react";
+import { requestNotificationPermission, getNotificationPreferences, setNotificationPreferences } from "@/lib/notifications";
 import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { toast } from "sonner";
+import type { NotificationPreferences } from "@/types/notification";
 
 interface NotificationSettingsProps {
   groupId: string;
@@ -12,6 +13,10 @@ interface NotificationSettingsProps {
 export function NotificationSettings({ groupId }: NotificationSettingsProps) {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPreferences, setShowPreferences] = useState(false);
+  const [preferences, setPreferences] = useState<NotificationPreferences>(
+    getNotificationPreferences(groupId)
+  );
 
   useEffect(() => {
     // Check if notifications are already enabled
@@ -67,38 +72,128 @@ export function NotificationSettings({ groupId }: NotificationSettingsProps) {
     }
   };
 
+  const handlePreferenceChange = (key: keyof NotificationPreferences, value: boolean) => {
+    const newPreferences = { ...preferences, [key]: value };
+    setPreferences(newPreferences);
+    setNotificationPreferences(groupId, newPreferences);
+    toast.success("Preferenze aggiornate");
+  };
+
   // Don't show on browsers that don't support notifications
   if (!("Notification" in window)) {
     return null;
   }
 
   return (
-    <div className="flex items-center justify-between rounded-lg border border-border bg-card p-3">
-      <div className="flex items-center gap-3">
-        {notificationsEnabled ? (
-          <Bell className="h-4 w-4 text-primary" />
-        ) : (
-          <BellOff className="h-4 w-4 text-muted-foreground" />
-        )}
-        <div>
-          <p className="text-sm font-medium">
-            {notificationsEnabled ? "Notifiche attive" : "Notifiche disattivate"}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Ricevi notifiche per nuove spese
-          </p>
+    <div className="space-y-2">
+      <div className="flex items-center justify-between rounded-lg border border-border bg-card p-3">
+        <div className="flex items-center gap-3">
+          {notificationsEnabled ? (
+            <Bell className="h-4 w-4 text-primary" />
+          ) : (
+            <BellOff className="h-4 w-4 text-muted-foreground" />
+          )}
+          <div>
+            <p className="text-sm font-medium">
+              {notificationsEnabled ? "Notifiche attive" : "Notifiche disattivate"}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Ricevi notifiche per eventi del gruppo
+            </p>
+          </div>
         </div>
+        <button
+          onClick={handleToggleNotifications}
+          disabled={loading}
+          className={`relative h-7 w-14 flex-shrink-0 overflow-hidden rounded-full transition-colors ${
+            notificationsEnabled ? "bg-primary" : "bg-muted"
+          } ${loading ? "opacity-50" : ""}`}
+        >
+          <span
+            className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
+              notificationsEnabled ? "left-8" : "left-1"
+            }`}
+          />
+        </button>
+      </div>
+
+      {notificationsEnabled && (
+        <>
+          <button
+            onClick={() => setShowPreferences(!showPreferences)}
+            className="flex w-full items-center justify-between rounded-lg border border-border bg-card p-3 text-sm transition-colors hover:bg-accent"
+          >
+            <span className="font-medium">Personalizza notifiche</span>
+            {showPreferences ? (
+              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            )}
+          </button>
+
+          {showPreferences && (
+            <div className="space-y-2 rounded-lg border border-border bg-card p-3">
+              <NotificationPreferenceItem
+                label="Spese"
+                description="Notifiche per nuove spese"
+                checked={preferences.expenses}
+                onChange={(checked) => handlePreferenceChange("expenses", checked)}
+              />
+              <NotificationPreferenceItem
+                label="Entrate"
+                description="Notifiche per nuove entrate"
+                checked={preferences.incomes}
+                onChange={(checked) => handlePreferenceChange("incomes", checked)}
+              />
+              <NotificationPreferenceItem
+                label="Saldi"
+                description="Notifiche per debiti saldati"
+                checked={preferences.settlements}
+                onChange={(checked) => handlePreferenceChange("settlements", checked)}
+              />
+              <NotificationPreferenceItem
+                label="Membri"
+                description="Notifiche per membri aggiunti/rimossi"
+                checked={preferences.members}
+                onChange={(checked) => handlePreferenceChange("members", checked)}
+              />
+              <NotificationPreferenceItem
+                label="Modifiche gruppo"
+                description="Notifiche per modifiche al gruppo"
+                checked={preferences.groupChanges}
+                onChange={(checked) => handlePreferenceChange("groupChanges", checked)}
+              />
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+interface NotificationPreferenceItemProps {
+  label: string;
+  description: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}
+
+function NotificationPreferenceItem({ label, description, checked, onChange }: NotificationPreferenceItemProps) {
+  return (
+    <div className="flex items-center justify-between py-2">
+      <div className="flex-1">
+        <p className="text-sm font-medium">{label}</p>
+        <p className="text-xs text-muted-foreground">{description}</p>
       </div>
       <button
-        onClick={handleToggleNotifications}
-        disabled={loading}
-        className={`relative h-7 w-14 flex-shrink-0 overflow-hidden rounded-full transition-colors ${
-          notificationsEnabled ? "bg-primary" : "bg-muted"
-        } ${loading ? "opacity-50" : ""}`}
+        onClick={() => onChange(!checked)}
+        className={`relative h-6 w-11 flex-shrink-0 overflow-hidden rounded-full transition-colors ${
+          checked ? "bg-primary" : "bg-muted"
+        }`}
       >
         <span
-          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
-            notificationsEnabled ? "left-8" : "left-1"
+          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
+            checked ? "left-5" : "left-0.5"
           }`}
         />
       </button>
