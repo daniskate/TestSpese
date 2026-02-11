@@ -7,12 +7,12 @@ import { DEFAULT_NOTIFICATION_PREFERENCES } from "@/types/notification";
 let messaging: ReturnType<typeof getMessaging> | null = null;
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC6jh3-HNhFz5thX515UZTGUjbCek_9NRQ",
-  authDomain: "studio-6659628549-fb7cd.firebaseapp.com",
-  projectId: "studio-6659628549-fb7cd",
-  storageBucket: "studio-6659628549-fb7cd.firebasestorage.app",
-  messagingSenderId: "421879343253",
-  appId: "1:421879343253:web:92483a4f2400b92b8e139c"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 // Initialize messaging only in browser (not in SSR)
@@ -52,7 +52,7 @@ export async function requestNotificationPermission(): Promise<string | null> {
 
     // Get FCM token
     const token = await getToken(messagingInstance, {
-      vapidKey: "BG6O61UX_PWbv6SD40W4I2QV-65DTlHqYeb4tae26gNigGMlstESXOIgFTX18c2aIl1K3lgIXh0yjLUcZG_jqB8"
+      vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY
     });
 
     console.log("FCM Token:", token);
