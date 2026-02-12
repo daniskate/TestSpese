@@ -1,4 +1,4 @@
-# 💰 SplitEase 
+# 💰 SplitEase  
 
 **SplitEase** è un'app web moderna per la gestione collaborativa delle spese di gruppo. Perfetta per coinquilini, viaggi, eventi e qualsiasi situazione in cui più persone condividono le spese.
 
