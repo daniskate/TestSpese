@@ -76,7 +76,7 @@ export function HomePage() {
                   <Link
                     key={g.id}
                     to={`/g/${g.id}`}
-                    className="flex items-center justify-between rounded-2xl bg-card p-4 shadow-md transition-all hover:shadow-lg"
+                    className="flex items-center justify-between rounded-2xl bg-card p-4 shadow-md transition-all duration-200 hover:shadow-lg active:scale-95"
                   >
                     <div className="flex items-center gap-3">
                       <div

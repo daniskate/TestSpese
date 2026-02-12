@@ -23,7 +23,7 @@ export function BottomNav() {
             end={item.to === ""}
             className={({ isActive }) =>
               cn(
-                "flex flex-1 flex-col items-center gap-0.5 py-2 text-xs transition-colors",
+                "flex flex-1 flex-col items-center gap-0.5 py-2 text-xs transition-all duration-200 active:scale-95",
                 isActive
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"

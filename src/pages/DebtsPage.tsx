@@ -110,7 +110,7 @@ export function DebtsPage() {
                     )
                   }
                   disabled={isSettling}
-                  className="ml-2 rounded-lg bg-green-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-green-600 disabled:opacity-50"
+                  className="ml-2 rounded-lg bg-green-500 px-3 py-1.5 text-xs font-medium text-white transition-all duration-200 hover:bg-green-600 active:scale-95 disabled:opacity-50"
                 >
                   {isSettling ? "..." : "Salda"}
                 </button>

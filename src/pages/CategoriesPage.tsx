@@ -91,7 +91,7 @@ export function CategoriesPage() {
                   <div className="relative">
                     <button
                       onClick={() => setEditingCategoryColor(cat.id)}
-                      className="h-10 w-10 rounded-full border-2 border-border transition-transform hover:scale-110"
+                      className="h-10 w-10 rounded-full border-2 border-border transition-all duration-200 hover:scale-110 active:scale-95"
                       style={{ backgroundColor: cat.color }}
                       aria-label="Cambia colore"
                     />
@@ -124,7 +124,7 @@ export function CategoriesPage() {
                 {!cat.isDefault && (
                   <button
                     onClick={() => handleDeleteCategory(cat.id)}
-                    className="rounded-lg p-2 text-muted-foreground hover:bg-red-50 hover:text-red-500"
+                    className="rounded-lg p-2 text-muted-foreground transition-all duration-200 hover:bg-red-50 hover:text-red-500 active:scale-95"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -185,7 +185,7 @@ export function CategoriesPage() {
               <button
                 type="submit"
                 disabled={!newCatName.trim()}
-                className="rounded-lg bg-primary px-4 py-3 text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+                className="rounded-lg bg-primary px-4 py-3 text-primary-foreground transition-all duration-200 hover:bg-primary/90 active:scale-95 disabled:opacity-50"
               >
                 <Plus className="h-5 w-5" />
               </button>
