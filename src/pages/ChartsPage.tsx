@@ -115,8 +115,7 @@ export function ChartsPage() {
         } else {
           // Expenses: who paid gets income (credit), who's in splits gets expense (debt)
           // Payer gets credit
-          const payerId = exp.paidByMemberId;
-          incomeByMember.set(payerId, (incomeByMember.get(payerId) ?? 0) + exp.amount);
+          incomeByMember.set(exp.paidByMemberId, (incomeByMember.get(exp.paidByMemberId) ?? 0) + exp.amount);
 
           // People in splits owe money
           for (const split of exp.splits) {

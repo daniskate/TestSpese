@@ -1,7 +1,9 @@
 import { Routes, Route } from "react-router";
 import { GroupProvider } from "@/context/GroupContext";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AppShell } from "@/components/layout/AppShell";
 import { HomePage } from "@/pages/HomePage";
+import { AuthPage } from "@/pages/AuthPage";
 import { GroupPage } from "@/pages/GroupPage";
 import { ExpensesPage } from "@/pages/ExpensesPage";
 import { DebtsPage } from "@/pages/DebtsPage";
@@ -12,13 +14,23 @@ import { SettingsPage } from "@/pages/SettingsPage";
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
+      <Route path="/auth" element={<AuthPage />} />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <HomePage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/g/:groupId"
         element={
-          <GroupProvider>
-            <AppShell />
-          </GroupProvider>
+          <ProtectedRoute>
+            <GroupProvider>
+              <AppShell />
+            </GroupProvider>
+          </ProtectedRoute>
         }
       >
         <Route index element={<GroupPage />} />

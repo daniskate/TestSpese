@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
-import { collection, query, orderBy, getDocs } from "firebase/firestore";
+import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { db } from "@/config/firebase";
+import { useAuth } from "@/context/AuthContext";
 import { CreateGroupForm } from "@/components/group/CreateGroupForm";
 import { Users, ChevronRight, Loader2 } from "lucide-react";
 
@@ -16,12 +17,20 @@ interface GroupSummary {
 export function HomePage() {
   const [groups, setGroups] = useState<GroupSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
     async function fetchGroups() {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
       try {
+        // Query groups where user is the owner or has access
         const q = query(
           collection(db, "groups"),
+          where("userIds", "array-contains", user.uid),
           orderBy("updatedAt", "desc")
         );
         const snapshot = await getDocs(q);
@@ -43,7 +52,7 @@ export function HomePage() {
       }
     }
     fetchGroups();
-  }, []);
+  }, [user]);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4">

@@ -16,7 +16,7 @@ import { generateGroupId, generateMemberId, generateSettlementId } from "@/lib/g
 import { createDefaultCategories, MEMBER_COLORS } from "@/lib/default-categories";
 import type { Timestamp } from "firebase/firestore";
 
-export async function createGroup(name: string): Promise<string> {
+export async function createGroup(name: string, userId: string): Promise<string> {
   const id = generateGroupId();
   const now = serverTimestamp();
 
@@ -28,6 +28,8 @@ export async function createGroup(name: string): Promise<string> {
     members: [],
     categories: createDefaultCategories(),
     settlements: [],
+    userId, // Owner of the group
+    userIds: [userId], // Array of users with access
   });
 
   return id;
@@ -37,6 +39,7 @@ export async function createGroupWithMembers(
   name: string,
   memberNames: string[],
   color: string,
+  userId: string,
   icon: string = "👥"
 ): Promise<string> {
   const id = generateGroupId();
@@ -60,6 +63,8 @@ export async function createGroupWithMembers(
     members,
     categories: createDefaultCategories(),
     settlements: [],
+    userId, // Owner of the group
+    userIds: [userId], // Array of users with access
   });
 
   return id;

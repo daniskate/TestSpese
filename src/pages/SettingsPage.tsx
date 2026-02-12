@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useGroup } from "@/context/GroupContext";
+import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { MemberAvatar } from "@/components/members/MemberAvatar";
 import {
@@ -18,11 +19,13 @@ import {
   LogOut,
   Moon,
   Sun,
+  User,
 } from "lucide-react";
 import { toast } from "sonner";
 
 export function SettingsPage() {
   const { group, expenses, clearMember } = useGroup();
+  const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
@@ -71,9 +74,16 @@ export function SettingsPage() {
     toast.success("CSV scaricato!");
   };
 
-  const handleLogout = () => {
-    clearMember();
-    navigate(`/g/${groupId}`);
+  const handleLogout = async () => {
+    if (!confirm("Vuoi disconnetterti?")) return;
+    try {
+      await signOut();
+      clearMember();
+      toast.success("Disconnesso");
+      navigate("/auth");
+    } catch {
+      toast.error("Errore durante il logout");
+    }
   };
 
   const handleDeleteGroup = async () => {
@@ -114,6 +124,22 @@ export function SettingsPage() {
         </button>
         <h2 className="text-lg font-semibold">Impostazioni</h2>
       </div>
+
+      {/* User Info */}
+      {user && (
+        <section className="space-y-2">
+          <h3 className="text-sm font-semibold text-muted-foreground">
+            Account
+          </h3>
+          <div className="flex items-center gap-3 rounded-lg border border-border bg-card p-3">
+            <User className="h-4 w-4 text-primary" />
+            <div className="flex-1">
+              <p className="text-sm font-medium">{user.displayName || "Utente"}</p>
+              <p className="text-xs text-muted-foreground">{user.email}</p>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Theme Toggle */}
       <section className="space-y-2">
@@ -254,7 +280,7 @@ export function SettingsPage() {
           className="flex w-full items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600 transition-colors hover:bg-red-100"
         >
           <LogOut className="h-4 w-4" />
-          <span>Cambia membro</span>
+          <span>Disconnetti</span>
         </button>
       </section>
     </div>
