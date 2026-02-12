@@ -52,28 +52,16 @@ export function ChartsPage() {
         memberCategoryMap.set(member.id, new Map());
       }
 
-      const memberCount = group.members.length;
-
-      // Aggregate expenses by member and category
+      // Aggregate expenses by member and category using splits
       for (const exp of nonSettlementShared) {
         if (exp.isIncome) continue; // Skip income for category breakdown
 
-        if (exp.type === "personal") {
-          // For personal expenses, add full amount to the member who paid
-          const memberMap = memberCategoryMap.get(exp.paidByMemberId);
+        // For personal expenses, use splits to determine who actually owes
+        for (const split of exp.splits) {
+          const memberMap = memberCategoryMap.get(split.memberId);
           if (memberMap) {
             const current = memberMap.get(exp.categoryId) ?? 0;
-            memberMap.set(exp.categoryId, current + exp.amount);
-          }
-        } else if (exp.type === "shared") {
-          // For shared expenses, split amount equally among all members
-          const sharePerMember = exp.amount / memberCount;
-          for (const member of group.members) {
-            const memberMap = memberCategoryMap.get(member.id);
-            if (memberMap) {
-              const current = memberMap.get(exp.categoryId) ?? 0;
-              memberMap.set(exp.categoryId, current + sharePerMember);
-            }
+            memberMap.set(exp.categoryId, current + split.amount);
           }
         }
       }
@@ -123,34 +111,26 @@ export function ChartsPage() {
     if (!group) return [];
 
     if (expenseType === "personal") {
-      // For personal expenses, separate income and expenses (including shared expenses split)
+      // For personal expenses, separate income and expenses using splits
       const incomeByMember = new Map<string, number>();
       const expensesByMember = new Map<string, number>();
 
       const memberCount = group.members.length;
 
       for (const exp of nonSettlementShared) {
-        if (exp.type === "personal") {
-          // For personal expenses, attribute to the member who paid
+        if (exp.isIncome) {
+          // Income: the payer receives money
           const memberId = exp.paidByMemberId;
-          if (exp.isIncome) {
-            incomeByMember.set(memberId, (incomeByMember.get(memberId) ?? 0) + exp.amount);
-          } else {
-            expensesByMember.set(memberId, (expensesByMember.get(memberId) ?? 0) + exp.amount);
-          }
-        } else if (exp.type === "shared") {
-          // For shared expenses, split equally among all members
-          const sharePerMember = exp.amount / memberCount;
-          if (exp.isIncome) {
-            // Shared income: add share to each member
-            for (const member of group.members) {
-              incomeByMember.set(member.id, (incomeByMember.get(member.id) ?? 0) + sharePerMember);
-            }
-          } else {
-            // Shared expense: add share to each member
-            for (const member of group.members) {
-              expensesByMember.set(member.id, (expensesByMember.get(member.id) ?? 0) + sharePerMember);
-            }
+          incomeByMember.set(memberId, (incomeByMember.get(memberId) ?? 0) + exp.amount);
+        } else {
+          // Expenses: who paid gets income (credit), who's in splits gets expense (debt)
+          // Payer gets credit
+          const payerId = exp.paidByMemberId;
+          incomeByMember.set(payerId, (incomeByMember.get(payerId) ?? 0) + exp.amount);
+
+          // People in splits owe money
+          for (const split of exp.splits) {
+            expensesByMember.set(split.memberId, (expensesByMember.get(split.memberId) ?? 0) + split.amount);
           }
         }
       }
