@@ -37,8 +37,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(userCredential.user, { displayName });
 
-    // Save user profile to Firestore
-    await saveUserProfile(userCredential.user.uid, email, displayName);
+    // Save user profile to Firestore (non-blocking)
+    try {
+      await saveUserProfile(userCredential.user.uid, email, displayName);
+    } catch (error) {
+      console.error("Failed to save user profile to Firestore:", error);
+      // Don't block signup if profile save fails
+    }
 
     setUser(userCredential.user);
   };
@@ -46,13 +51,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = async (email: string, password: string) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
-    // Update user profile in Firestore (in case email or displayName changed)
+    // Update user profile in Firestore (non-blocking)
     if (userCredential.user.email && userCredential.user.displayName) {
-      await saveUserProfile(
-        userCredential.user.uid,
-        userCredential.user.email,
-        userCredential.user.displayName
-      );
+      try {
+        await saveUserProfile(
+          userCredential.user.uid,
+          userCredential.user.email,
+          userCredential.user.displayName
+        );
+      } catch (error) {
+        console.error("Failed to save user profile to Firestore:", error);
+        // Don't block login if profile save fails
+      }
     }
   };
 
