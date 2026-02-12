@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { useAuth } from "@/context/AuthContext";
 import { createGroupWithMembers } from "@/services/group-service";
 import { MEMBER_COLORS } from "@/lib/default-categories";
 import { Users, Plus, X } from "lucide-react";
@@ -22,6 +23,7 @@ export function CreateGroupForm() {
   const [newMemberInput, setNewMemberInput] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleNameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,12 +55,18 @@ export function CreateGroupForm() {
       return;
     }
 
+    if (!user) {
+      toast.error("Devi essere autenticato per creare un gruppo");
+      return;
+    }
+
     setLoading(true);
     try {
       const groupId = await createGroupWithMembers(
         groupName.trim(),
         memberNames,
         groupColor,
+        user.uid, // Pass user ID
         groupIcon
       );
       toast.success("Gruppo creato!");

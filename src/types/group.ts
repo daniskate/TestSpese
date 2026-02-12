@@ -36,4 +36,6 @@ export interface Group {
   categories: Category[];
   settlements: Settlement[];
   fcmTokens?: string[]; // Firebase Cloud Messaging tokens for push notifications
+  userId?: string; // Owner of the group (for authentication)
+  userIds?: string[]; // Array of user IDs who have access to this group (for shared access)
 }
