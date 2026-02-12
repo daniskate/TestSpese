@@ -119,12 +119,24 @@ export function getMemberTotalSpending(
   for (const expense of expenses) {
     if (expense.isSettlement) continue;
 
-    if (expense.type === "personal" && expense.paidByMemberId === memberId) {
-      // Income adds to balance, expenses subtract from it
-      if (expense.isIncome) {
-        personal += expense.amount;
-      } else {
-        personal -= expense.amount;
+    if (expense.type === "personal") {
+      // If I paid, I get credit
+      if (expense.paidByMemberId === memberId) {
+        if (expense.isIncome) {
+          personal += expense.amount;
+        } else {
+          personal += expense.amount; // Credit for paying someone else's expense
+        }
+      }
+
+      // If I'm in the splits, I owe that amount
+      const split = expense.splits.find((s) => s.memberId === memberId);
+      if (split) {
+        if (expense.isIncome) {
+          personal += split.amount;
+        } else {
+          personal -= split.amount; // Debt for expense paid on my behalf
+        }
       }
     }
 

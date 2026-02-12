@@ -51,7 +51,7 @@ export function GroupPage() {
         <div className="mb-6 flex items-center justify-between">
           <button
             onClick={() => navigate("/")}
-            className="rounded-lg p-2 transition-colors hover:bg-white/10"
+            className="rounded-lg p-2 transition-all duration-200 hover:bg-white/10 active:scale-95"
             aria-label="Home"
           >
             <Home className="h-5 w-5" />
@@ -59,7 +59,7 @@ export function GroupPage() {
           <h1 className="text-lg font-semibold">{group.name}</h1>
           <button
             onClick={() => navigate(`/g/${groupId}/impostazioni`)}
-            className="rounded-lg p-2 transition-colors hover:bg-white/10"
+            className="rounded-lg p-2 transition-all duration-200 hover:bg-white/10 active:scale-95"
             aria-label="Impostazioni"
           >
             <Settings className="h-5 w-5" />
@@ -173,7 +173,7 @@ export function GroupPage() {
             {expenses.length > 5 && (
               <button
                 onClick={() => navigate(`/g/${groupId}/spese`)}
-                className="text-xs font-medium text-primary"
+                className="text-xs font-medium text-primary transition-all duration-200 active:scale-95"
               >
                 Vedi tutte
               </button>

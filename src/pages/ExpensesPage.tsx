@@ -65,7 +65,7 @@ export function ExpensesPage() {
       <div className="flex gap-1 rounded-lg bg-muted p-1">
         <button
           onClick={() => setTab("shared")}
-          className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+          className={`btn-animated flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
             tab === "shared"
               ? "bg-card text-foreground shadow-sm"
               : "text-muted-foreground"
@@ -75,7 +75,7 @@ export function ExpensesPage() {
         </button>
         <button
           onClick={() => setTab("personal")}
-          className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+          className={`btn-animated flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
             tab === "personal"
               ? "bg-card text-foreground shadow-sm"
               : "text-muted-foreground"
@@ -136,13 +136,13 @@ export function ExpensesPage() {
                           setEditingExpense(expense);
                           setShowForm(true);
                         }}
-                        className="rounded p-1 text-muted-foreground hover:bg-accent"
+                        className="rounded p-1 text-muted-foreground transition-all duration-200 hover:bg-accent active:scale-95"
                       >
                         <Pencil className="h-3.5 w-3.5" />
                       </button>
                       <button
                         onClick={() => handleDelete(expense.id)}
-                        className="rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-500"
+                        className="rounded p-1 text-muted-foreground transition-all duration-200 hover:bg-red-50 hover:text-red-500 active:scale-95"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
@@ -252,13 +252,13 @@ export function ExpensesPage() {
                                   setEditingExpense(expense);
                                   setShowForm(true);
                                 }}
-                                className="rounded p-1 text-muted-foreground hover:bg-accent"
+                                className="rounded p-1 text-muted-foreground transition-all duration-200 hover:bg-accent active:scale-95"
                               >
                                 <Pencil className="h-3.5 w-3.5" />
                               </button>
                               <button
                                 onClick={() => handleDelete(expense.id)}
-                                className="rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-500"
+                                className="rounded p-1 text-muted-foreground transition-all duration-200 hover:bg-red-50 hover:text-red-500 active:scale-95"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
                               </button>
