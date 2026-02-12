@@ -44,13 +44,17 @@ export function ChartsPage() {
         memberCategoryMap.set(member.id, new Map());
       }
 
-      // Aggregate expenses by member and category
+      // Aggregate expenses by member and category using splits
       for (const exp of nonSettlementShared) {
         if (exp.isIncome) continue; // Skip income for category breakdown
-        const memberMap = memberCategoryMap.get(exp.paidByMemberId);
-        if (memberMap) {
-          const current = memberMap.get(exp.categoryId) ?? 0;
-          memberMap.set(exp.categoryId, current + exp.amount);
+
+        // For personal expenses, use splits to determine who actually owes
+        for (const split of exp.splits) {
+          const memberMap = memberCategoryMap.get(split.memberId);
+          if (memberMap) {
+            const current = memberMap.get(exp.categoryId) ?? 0;
+            memberMap.set(exp.categoryId, current + split.amount);
+          }
         }
       }
 
@@ -99,16 +103,25 @@ export function ChartsPage() {
     if (!group) return [];
 
     if (expenseType === "personal") {
-      // For personal expenses, separate income and expenses
+      // For personal expenses, separate income and expenses using splits
       const incomeByMember = new Map<string, number>();
       const expensesByMember = new Map<string, number>();
 
       for (const exp of nonSettlementShared) {
-        const memberId = exp.paidByMemberId;
         if (exp.isIncome) {
+          // Income: the payer receives money
+          const memberId = exp.paidByMemberId;
           incomeByMember.set(memberId, (incomeByMember.get(memberId) ?? 0) + exp.amount);
         } else {
-          expensesByMember.set(memberId, (expensesByMember.get(memberId) ?? 0) + exp.amount);
+          // Expenses: who paid gets income (credit), who's in splits gets expense (debt)
+          // Payer gets credit
+          const payerId = exp.paidByMemberId;
+          incomeByMember.set(payerId, (incomeByMember.get(payerId) ?? 0) + exp.amount);
+
+          // People in splits owe money
+          for (const split of exp.splits) {
+            expensesByMember.set(split.memberId, (expensesByMember.get(split.memberId) ?? 0) + split.amount);
+          }
         }
       }
 

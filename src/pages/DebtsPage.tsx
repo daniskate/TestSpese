@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useParams } from "react-router";
 import { useGroup } from "@/context/GroupContext";
 import { MemberAvatar } from "@/components/members/MemberAvatar";
-import { addSettlement } from "@/services/group-service";
+import { addSettlement, removeSettlement } from "@/services/group-service";
 import { formatEUR } from "@/lib/currency";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 export function DebtsPage() {
@@ -40,6 +40,28 @@ export function DebtsPage() {
       toast.error("Errore nel saldo");
     } finally {
       setSettlingId(null);
+    }
+  };
+
+  const handleDeleteSettlement = async (settlementId: string) => {
+    const settlement = group.settlements.find((s) => s.id === settlementId);
+    if (!settlement) return;
+
+    const fromName = getMember(settlement.fromMemberId)?.name ?? "?";
+    const toName = getMember(settlement.toMemberId)?.name ?? "?";
+
+    if (
+      !confirm(
+        `Eliminare il saldo di ${formatEUR(settlement.amount)} da ${fromName} a ${toName}?`
+      )
+    )
+      return;
+
+    try {
+      await removeSettlement(groupId, settlement);
+      toast.success("Saldo eliminato");
+    } catch {
+      toast.error("Errore nell'eliminazione");
     }
   };
 
@@ -133,14 +155,21 @@ export function DebtsPage() {
               return (
                 <div
                   key={s.id}
-                  className="flex items-center justify-between rounded-lg border border-border bg-card/50 p-3 text-sm"
+                  className="flex items-center justify-between gap-2 rounded-lg border border-border bg-card/50 p-3 text-sm"
                 >
-                  <span className="text-muted-foreground">
+                  <span className="flex-1 text-muted-foreground">
                     {from?.name ?? "?"} ha pagato {to?.name ?? "?"}
                   </span>
                   <span className="font-medium text-green-600">
                     {formatEUR(s.amount)}
                   </span>
+                  <button
+                    onClick={() => handleDeleteSettlement(s.id)}
+                    className="rounded p-1 text-muted-foreground transition-all duration-200 hover:bg-red-50 hover:text-red-500 active:scale-95"
+                    aria-label="Elimina saldo"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               );
             })}
