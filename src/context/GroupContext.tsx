@@ -12,8 +12,11 @@ import {
   collection,
   query,
   orderBy,
+  updateDoc,
+  arrayUnion,
 } from "firebase/firestore";
 import { db } from "@/config/firebase";
+import { useAuth } from "@/context/AuthContext";
 import type { Group, Expense, Member } from "@/types";
 import { useCurrentMember } from "@/hooks/useCurrentMember";
 import { addRecentGroup } from "@/hooks/useRecentGroups";
@@ -37,6 +40,7 @@ const GroupContext = createContext<GroupContextValue | null>(null);
 
 export function GroupProvider({ children }: { children: ReactNode }) {
   const { groupId } = useParams<{ groupId: string }>();
+  const { user } = useAuth();
   const [group, setGroup] = useState<Group | null>(null);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,6 +74,35 @@ export function GroupProvider({ children }: { children: ReactNode }) {
 
     return unsubscribe;
   }, [groupId]);
+
+  // Auto-join: Add current user to group if not already in userIds
+  useEffect(() => {
+    async function autoJoinGroup() {
+      if (!group || !groupId || !user) return;
+
+      // Check if user is already in the group
+      const userIds = group.userIds || [];
+      if (userIds.includes(user.uid)) {
+        // User already has access
+        return;
+      }
+
+      try {
+        // Add user to group's userIds
+        console.log("🔗 Auto-joining group via shared link:", group.name);
+        await updateDoc(doc(db, "groups", groupId), {
+          userIds: arrayUnion(user.uid),
+          // Also set userId if not set (for backwards compatibility)
+          ...((!group.userId) && { userId: user.uid }),
+        });
+        console.log("✅ Successfully joined group:", group.name);
+      } catch (error) {
+        console.error("❌ Error auto-joining group:", error);
+      }
+    }
+
+    autoJoinGroup();
+  }, [group, groupId, user]);
 
   // Save to recent groups when loaded
   useEffect(() => {
