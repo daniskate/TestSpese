@@ -25,17 +25,25 @@ export function ChartsPage() {
   );
   const [expenseType, setExpenseType] = useState<"shared" | "personal">("shared");
 
-  const filteredExpenses = useMemo(
-    () => expenses.filter((e) => !e.isSettlement && e.type === expenseType),
-    [expenses, expenseType]
-  );
+  const filteredExpenses = useMemo(() => {
+    const nonSettlement = expenses.filter((e) => !e.isSettlement);
+
+    // For shared view, show only shared expenses
+    if (expenseType === "shared") {
+      return nonSettlement.filter((e) => e.type === "shared");
+    }
+
+    // For personal view, include BOTH personal expenses AND shared expenses
+    // (shared expenses will be split among members in calculations)
+    return nonSettlement;
+  }, [expenses, expenseType]);
 
   const nonSettlementShared = filteredExpenses;
 
   const categoryData = useMemo(() => {
     if (!group) return [];
 
-    // For personal expenses, show breakdown by member
+    // For personal expenses, show breakdown by member (including shared expenses split)
     if (expenseType === "personal") {
       const memberCategoryMap = new Map<string, Map<string, number>>();
 
@@ -106,6 +114,8 @@ export function ChartsPage() {
       // For personal expenses, separate income and expenses using splits
       const incomeByMember = new Map<string, number>();
       const expensesByMember = new Map<string, number>();
+
+      const memberCount = group.members.length;
 
       for (const exp of nonSettlementShared) {
         if (exp.isIncome) {
@@ -182,7 +192,7 @@ export function ChartsPage() {
       <div className="flex gap-2 rounded-lg bg-muted p-1">
         <button
           onClick={() => setExpenseType("shared")}
-          className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+          className={`btn-animated flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
             expenseType === "shared"
               ? "bg-card text-foreground shadow-sm"
               : "text-muted-foreground"
@@ -192,7 +202,7 @@ export function ChartsPage() {
         </button>
         <button
           onClick={() => setExpenseType("personal")}
-          className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+          className={`btn-animated flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
             expenseType === "personal"
               ? "bg-card text-foreground shadow-sm"
               : "text-muted-foreground"
@@ -208,7 +218,7 @@ export function ChartsPage() {
           <button
             key={t.key}
             onClick={() => setChartTab(t.key)}
-            className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+            className={`btn-animated flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
               chartTab === t.key
                 ? "bg-card text-foreground shadow-sm"
                 : "text-muted-foreground"
@@ -225,11 +235,11 @@ export function ChartsPage() {
         </p>
       ) : (
         <>
-          <div className="rounded-xl border border-border bg-card p-4">
+          <div className="animate-fade-in-up rounded-xl border border-border bg-card p-4 chart-transition">
           {/* Category Chart */}
           {chartTab === "category" && (
             <div>
-              <h3 className="mb-4 text-sm font-semibold">
+              <h3 className="mb-4 text-sm font-semibold text-gradient">
                 Spese per categoria
               </h3>
               {expenseType === "personal" ? (
@@ -262,8 +272,8 @@ export function ChartsPage() {
                       }));
 
                       return (
-                        <div key={member.id} className="rounded-lg border border-border bg-card p-4">
-                          <h4 className="mb-4 text-center text-sm font-semibold">{member.name}</h4>
+                        <div key={member.id} className="animate-fade-in-up rounded-lg border border-border bg-card p-4 hover:shadow-md transition-shadow">
+                          <h4 className="mb-4 text-center text-sm font-semibold text-gradient">{member.name}</h4>
                           {items.length > 0 ? (
                             <>
                               <ResponsiveContainer width="100%" height={220}>
@@ -384,7 +394,7 @@ export function ChartsPage() {
           {/* Member Bar Chart */}
           {chartTab === "member" && (
             <div>
-              <h3 className="mb-4 text-sm font-semibold">
+              <h3 className="mb-4 text-sm font-semibold text-gradient">
                 {expenseType === "personal" ? "Entrate e uscite per membro" : "Spese per membro"}
               </h3>
               {expenseType === "personal" ? (
@@ -444,7 +454,7 @@ export function ChartsPage() {
           {/* Time Line Chart */}
           {chartTab === "time" && (
             <div>
-              <h3 className="mb-4 text-sm font-semibold">Spese nel tempo</h3>
+              <h3 className="mb-4 text-sm font-semibold text-gradient">Spese nel tempo</h3>
               <ResponsiveContainer width="100%" height={280}>
                 <LineChart data={timeData}>
                   <CartesianGrid strokeDasharray="3 3" />
