@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { collection, query, where, getDocs, Timestamp } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { useAuth } from "@/context/AuthContext";
 import { CreateGroupForm } from "@/components/group/CreateGroupForm";
-import { Users, ChevronRight, Loader2 } from "lucide-react";
+import { Users, ChevronRight, Loader2, LogOut } from "lucide-react";
+import { toast } from "sonner";
 
 interface GroupSummary {
   id: string;
@@ -18,7 +19,19 @@ interface GroupSummary {
 export function HomePage() {
   const [groups, setGroups] = useState<GroupSummary[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    if (!confirm("Vuoi disconnetterti?")) return;
+    try {
+      await signOut();
+      toast.success("Disconnesso");
+      navigate("/auth");
+    } catch {
+      toast.error("Errore durante il logout");
+    }
+  };
 
   useEffect(() => {
     async function fetchGroups() {
@@ -72,17 +85,31 @@ export function HomePage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-8">
-        <div className="text-center">
-          <img
-            src="/pwa-192x192.png"
-            alt="Splitease"
-            className="mx-auto mb-4 h-16 w-16 rounded-2xl"
-          />
-          <h1 className="text-2xl font-bold">SplitEase</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Gestisci le spese condivise con il tuo gruppo in modo semplice e
-            veloce.
-          </p>
+        {/* Header with Logout */}
+        <div className="relative">
+          <div className="text-center">
+            <img
+              src="/pwa-192x192.png"
+              alt="Splitease"
+              className="mx-auto mb-4 h-16 w-16 rounded-2xl"
+            />
+            <h1 className="text-2xl font-bold">SplitEase</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Gestisci le spese condivise con il tuo gruppo in modo semplice e
+              veloce.
+            </p>
+          </div>
+
+          {/* Logout button in top right */}
+          {user && (
+            <button
+              onClick={handleLogout}
+              className="absolute right-0 top-0 rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              title="Disconnetti"
+            >
+              <LogOut className="h-5 w-5" />
+            </button>
+          )}
         </div>
 
         {loading ? (
