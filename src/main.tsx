@@ -16,17 +16,3 @@ createRoot(document.getElementById("root")!).render(
     </ThemeProvider>
   </StrictMode>
 );
-
-// PWA service worker registration
-import { registerSW } from "virtual:pwa-register";
-
-registerSW({
-  onNeedRefresh() {
-    if (confirm("Nuova versione disponibile. Vuoi aggiornare?")) {
-      window.location.reload();
-    }
-  },
-  onOfflineReady() {
-    console.log("App pronta per l'uso offline");
-  },
-});

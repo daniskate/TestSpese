@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router";
 import { useGroup } from "@/context/GroupContext";
 import { useTheme } from "@/context/ThemeContext";
 import { MemberAvatar } from "@/components/members/MemberAvatar";
-import { NotificationSettings } from "@/components/notifications/NotificationSettings";
 import {
   addMember,
   deleteGroup,
@@ -145,14 +144,6 @@ export function SettingsPage() {
             />
           </button>
         </div>
-      </section>
-
-      {/* Notifications */}
-      <section className="space-y-2">
-        <h3 className="text-sm font-semibold text-muted-foreground">
-          Notifiche
-        </h3>
-        <NotificationSettings groupId={groupId} />
       </section>
 
       {/* Share */}
