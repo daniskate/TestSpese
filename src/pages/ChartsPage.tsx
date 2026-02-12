@@ -115,8 +115,6 @@ export function ChartsPage() {
       const incomeByMember = new Map<string, number>();
       const expensesByMember = new Map<string, number>();
 
-      const memberCount = group.members.length;
-
       for (const exp of nonSettlementShared) {
         if (exp.isIncome) {
           // Income: the payer receives money
