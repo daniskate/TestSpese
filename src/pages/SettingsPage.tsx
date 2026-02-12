@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useGroup } from "@/context/GroupContext";
 import { useAuth } from "@/context/AuthContext";
@@ -11,6 +11,7 @@ import {
 } from "@/services/group-service";
 import { exportExpensesToCSV } from "@/lib/csv-export";
 import { migrateGroupsToAuth } from "@/scripts/migrate-groups";
+import { getUserProfiles, type UserProfile } from "@/services/user-service";
 import {
   ArrowLeft,
   Download,
@@ -22,6 +23,8 @@ import {
   Sun,
   User,
   RefreshCw,
+  Users,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -34,6 +37,30 @@ export function SettingsPage() {
   const [newMemberName, setNewMemberName] = useState("");
   const [addingMember, setAddingMember] = useState(false);
   const [editingMemberColor, setEditingMemberColor] = useState<string | null>(null);
+  const [groupUsers, setGroupUsers] = useState<UserProfile[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+
+  // Load users with access to this group
+  useEffect(() => {
+    async function loadGroupUsers() {
+      if (!group || !group.userIds || group.userIds.length === 0) {
+        setGroupUsers([]);
+        return;
+      }
+
+      setLoadingUsers(true);
+      try {
+        const users = await getUserProfiles(group.userIds);
+        setGroupUsers(users);
+      } catch (error) {
+        console.error("Error loading group users:", error);
+      } finally {
+        setLoadingUsers(false);
+      }
+    }
+
+    loadGroupUsers();
+  }, [group?.userIds]);
 
   if (!group || !groupId) return null;
 
@@ -162,6 +189,42 @@ export function SettingsPage() {
           </div>
         </section>
       )}
+
+      {/* Users with Access */}
+      <section className="space-y-2">
+        <h3 className="text-sm font-semibold text-muted-foreground">
+          Utenti con Accesso
+        </h3>
+        {loadingUsers ? (
+          <div className="flex justify-center py-4">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : groupUsers.length > 0 ? (
+          <div className="space-y-2">
+            {groupUsers.map((u) => (
+              <div
+                key={u.uid}
+                className="flex items-center gap-3 rounded-lg border border-border bg-card p-3"
+              >
+                <Users className="h-4 w-4 text-primary" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{u.displayName}</p>
+                  <p className="text-xs text-muted-foreground">{u.email}</p>
+                </div>
+                {u.uid === group.userId && (
+                  <span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                    Proprietario
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Nessun utente con accesso
+          </p>
+        )}
+      </section>
 
       {/* Theme Toggle */}
       <section className="space-y-2">
