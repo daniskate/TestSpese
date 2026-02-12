@@ -10,6 +10,7 @@ import {
   updateMemberColor,
 } from "@/services/group-service";
 import { exportExpensesToCSV } from "@/lib/csv-export";
+import { migrateGroupsToAuth } from "@/scripts/migrate-groups";
 import {
   ArrowLeft,
   Download,
@@ -20,6 +21,7 @@ import {
   Moon,
   Sun,
   User,
+  RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -83,6 +85,26 @@ export function SettingsPage() {
       navigate("/auth");
     } catch {
       toast.error("Errore durante il logout");
+    }
+  };
+
+  const handleMigrateGroups = async () => {
+    if (!user) {
+      toast.error("Devi essere autenticato");
+      return;
+    }
+
+    if (!confirm("Vuoi migrare tutti i gruppi esistenti al tuo account? Questo aggiungerà il tuo userId a tutti i gruppi senza proprietario.")) {
+      return;
+    }
+
+    try {
+      toast.info("Migrazione in corso...");
+      await migrateGroupsToAuth(user.uid);
+      toast.success("Migrazione completata! Ricarica la pagina.");
+    } catch (error) {
+      console.error("Migration error:", error);
+      toast.error("Errore durante la migrazione");
     }
   };
 
@@ -257,6 +279,23 @@ export function SettingsPage() {
           <Download className="h-4 w-4 text-primary" />
           <span>Esporta spese in CSV</span>
         </button>
+      </section>
+
+      {/* Migration Tool (Debug) */}
+      <section className="space-y-2">
+        <h3 className="text-sm font-semibold text-muted-foreground">
+          Strumenti
+        </h3>
+        <button
+          onClick={handleMigrateGroups}
+          className="flex w-full items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-600 transition-colors hover:bg-blue-100"
+        >
+          <RefreshCw className="h-4 w-4" />
+          <span>Migra gruppi esistenti</span>
+        </button>
+        <p className="text-xs text-muted-foreground">
+          Usa questo pulsante se non vedi i tuoi gruppi dopo il login. Aggiunge il tuo account ai gruppi esistenti.
+        </p>
       </section>
 
       {/* Delete Group */}

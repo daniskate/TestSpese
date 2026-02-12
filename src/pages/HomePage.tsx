@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
-import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, Timestamp } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { useAuth } from "@/context/AuthContext";
 import { CreateGroupForm } from "@/components/group/CreateGroupForm";
@@ -12,6 +12,7 @@ interface GroupSummary {
   memberCount: number;
   color?: string;
   icon?: string;
+  updatedAt?: Timestamp;
 }
 
 export function HomePage() {
@@ -27,11 +28,12 @@ export function HomePage() {
       }
 
       try {
-        // Query groups where user is the owner or has access
+        // Query groups where user has access
+        // Note: removed orderBy to avoid needing a composite index
+        // We'll sort on the client side instead
         const q = query(
           collection(db, "groups"),
-          where("userIds", "array-contains", user.uid),
-          orderBy("updatedAt", "desc")
+          where("userIds", "array-contains", user.uid)
         );
         const snapshot = await getDocs(q);
         const data = snapshot.docs.map((doc) => {
@@ -42,11 +44,24 @@ export function HomePage() {
             memberCount: Array.isArray(d.members) ? d.members.length : 0,
             color: d.color as string | undefined,
             icon: d.icon as string | undefined,
+            updatedAt: d.updatedAt,
           };
         });
+
+        // Sort by updatedAt on client side (most recent first)
+        data.sort((a, b) => {
+          if (!a.updatedAt || !b.updatedAt) return 0;
+          return b.updatedAt.toMillis() - a.updatedAt.toMillis();
+        });
+
         setGroups(data);
+        console.log("Groups loaded:", data.length);
       } catch (err) {
         console.error("Error fetching groups:", err);
+        // Log the full error to help debug
+        if (err instanceof Error) {
+          console.error("Error message:", err.message);
+        }
       } finally {
         setLoading(false);
       }
