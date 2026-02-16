@@ -125,8 +125,11 @@ export function CategoriesPage() {
     try {
       const updatedCategories = group.categories.map((cat) => {
         // Check if icon is an emoji and needs migration
-        if (cat.icon.length <= 2 && ICON_MIGRATION_MAP[cat.icon]) {
-          return { ...cat, icon: ICON_MIGRATION_MAP[cat.icon] };
+        if (cat.icon.length <= 2) {
+          const newIcon = ICON_MIGRATION_MAP[cat.icon];
+          if (newIcon) {
+            return { ...cat, icon: newIcon };
+          }
         }
         return cat;
       });
