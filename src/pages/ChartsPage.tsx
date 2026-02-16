@@ -33,9 +33,8 @@ export function ChartsPage() {
       return nonSettlement.filter((e) => e.type === "shared");
     }
 
-    // For personal view, include BOTH personal expenses AND shared expenses
-    // (shared expenses will be split among members in calculations)
-    return nonSettlement;
+    // For personal view, show ONLY personal expenses (not shared!)
+    return nonSettlement.filter((e) => e.type === "personal");
   }, [expenses, expenseType]);
 
   const nonSettlementShared = filteredExpenses;
