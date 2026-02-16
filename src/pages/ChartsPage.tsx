@@ -98,7 +98,7 @@ export function ChartsPage() {
 
     return group.categories
       .map((cat) => ({
-        name: `${cat.icon} ${cat.name}`,
+        name: cat.name,
         value: Math.round((totals.get(cat.id) ?? 0) * 100) / 100,
         color: cat.color,
       }))
@@ -110,7 +110,7 @@ export function ChartsPage() {
     if (!group) return [];
 
     if (expenseType === "personal") {
-      // For personal expenses, separate income and expenses using splits
+      // For personal expenses, separate income and expenses
       const incomeByMember = new Map<string, number>();
       const expensesByMember = new Map<string, number>();
 
@@ -120,14 +120,9 @@ export function ChartsPage() {
           const memberId = exp.paidByMemberId;
           incomeByMember.set(memberId, (incomeByMember.get(memberId) ?? 0) + exp.amount);
         } else {
-          // Expenses: who paid gets income (credit), who's in splits gets expense (debt)
-          // Payer gets credit
-          incomeByMember.set(exp.paidByMemberId, (incomeByMember.get(exp.paidByMemberId) ?? 0) + exp.amount);
-
-          // People in splits owe money
-          for (const split of exp.splits) {
-            expensesByMember.set(split.memberId, (expensesByMember.get(split.memberId) ?? 0) + split.amount);
-          }
+          // Personal expense: payer spends money
+          const memberId = exp.paidByMemberId;
+          expensesByMember.set(memberId, (expensesByMember.get(memberId) ?? 0) + exp.amount);
         }
       }
 
