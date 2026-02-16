@@ -3,9 +3,59 @@ import { useParams } from "react-router";
 import { useGroup } from "@/context/GroupContext";
 import { updateCategories } from "@/services/group-service";
 import { generateCategoryId } from "@/lib/group-id";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import type { Category } from "@/types";
+
+// Mapping old emoji icons to new PNG icons
+const ICON_MIGRATION_MAP: Record<string, string> = {
+  "🍕": "/Icons/icon_alimentari.png",
+  "🍔": "/Icons/icon_alimentari.png",
+  "🍟": "/Icons/icon_alimentari.png",
+  "🌮": "/Icons/icon_alimentari.png",
+  "🍜": "/Icons/icon_alimentari.png",
+  "🍱": "/Icons/icon_alimentari.png",
+  "🍣": "/Icons/icon_alimentari.png",
+  "🥗": "/Icons/icon_alimentari.png",
+  "🍰": "/Icons/icon_alimentari.png",
+  "☕": "/Icons/icon_caffe.png",
+  "🚗": "/Icons/icon_trasporti.png",
+  "🚕": "/Icons/icon_trasporti.png",
+  "🚌": "/Icons/icon_trasporti.png",
+  "✈️": "/Icons/icon_viaggi.png",
+  "🏠": "/Icons/icon_casa.png",
+  "🏥": "/Icons/icon_salute.png",
+  "💊": "/Icons/icon_salute.png",
+  "🎬": "/Icons/icon_intrattenimento.png",
+  "🎮": "/Icons/icon_intrattenimento.png",
+  "📚": "/Icons/icon_istruzione.png",
+  "👕": "/Icons/icon_vestiti.png",
+  "👗": "/Icons/icon_vestiti.png",
+  "👠": "/Icons/icon_vestiti.png",
+  "💄": "/Icons/icon_vestiti.png",
+  "💰": "/Icons/icon_stipendio.png",
+  "💳": "/Icons/icon_abbonamenti.png",
+  "🎁": "/Icons/icon_regali.png",
+  "🛒": "/Icons/icon_alimentari.png",
+  "🔧": "/Icons/icon_casa.png",
+  "⚡": "/Icons/icon_bollette.png",
+  "💡": "/Icons/icon_bollette.png",
+  "📱": "/Icons/icon_tecnologia.png",
+  "💻": "/Icons/icon_tecnologia.png",
+  "🎵": "/Icons/icon_svago.png",
+  "🏋️": "/Icons/icon_attivita_fisica.png",
+  "⚽": "/Icons/icon_attivita_fisica.png",
+  "🎾": "/Icons/icon_attivita_fisica.png",
+  "🎨": "/Icons/icon_svago.png",
+  "📸": "/Icons/icon_tecnologia.png",
+  "🌴": "/Icons/icon_viaggi.png",
+  "🎉": "/Icons/icon_svago.png",
+  "🐕": "/Icons/icon_animali.png",
+  "🐈": "/Icons/icon_animali.png",
+  "👨‍👩‍👧‍👦": "/Icons/icon_famiglia.png",
+  "👪": "/Icons/icon_famiglia.png",
+  "📦": "/Icons/icon_svago.png",
+};
 
 const CATEGORY_EMOJIS = [
   "🍕", "🍔", "🍟", "🌮", "🍜", "🍱", "🍣", "🥗", "🍰", "☕",
@@ -69,14 +119,49 @@ export function CategoriesPage() {
     }
   };
 
+  const handleMigrateIcons = async () => {
+    if (!confirm("Vuoi migrare tutte le icone emoji alle nuove icone PNG?")) return;
+
+    try {
+      const updatedCategories = group.categories.map((cat) => {
+        // Check if icon is an emoji and needs migration
+        if (cat.icon.length <= 2 && ICON_MIGRATION_MAP[cat.icon]) {
+          return { ...cat, icon: ICON_MIGRATION_MAP[cat.icon] };
+        }
+        return cat;
+      });
+
+      await updateCategories(groupId, updatedCategories);
+      toast.success("Icone migrate con successo!");
+    } catch (error) {
+      console.error("Error migrating icons:", error);
+      toast.error("Errore nella migrazione delle icone");
+    }
+  };
+
+  const hasEmojiIcons = group.categories.some(cat => cat.icon.length <= 2);
+
   return (
     <div className="min-h-screen bg-background pb-24 pt-6">
       <div className="mx-auto max-w-2xl space-y-6 px-4">
         <div>
-          <h2 className="text-2xl font-bold">Categorie</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Gestisci le categorie per organizzare le tue spese
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold">Categorie</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Gestisci le categorie per organizzare le tue spese
+              </p>
+            </div>
+            {hasEmojiIcons && (
+              <button
+                onClick={handleMigrateIcons}
+                className="flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                <RefreshCw className="h-4 w-4" />
+                <span className="hidden sm:inline">Aggiorna icone</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Categories List */}
@@ -91,10 +176,20 @@ export function CategoriesPage() {
                   <div className="relative">
                     <button
                       onClick={() => setEditingCategoryColor(cat.id)}
-                      className="h-10 w-10 rounded-full border-2 border-border transition-all duration-200 hover:scale-110 active:scale-95"
+                      className="h-10 w-10 rounded-full border-2 border-border transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center"
                       style={{ backgroundColor: cat.color }}
                       aria-label="Cambia colore"
-                    />
+                    >
+                      {cat.icon.startsWith('/') ? (
+                        <img
+                          src={cat.icon}
+                          alt={cat.name}
+                          className="h-6 w-6 object-contain"
+                        />
+                      ) : (
+                        <span className="text-lg">{cat.icon}</span>
+                      )}
+                    </button>
                     {editingCategoryColor === cat.id && (
                       <div className="absolute left-0 top-12 z-10 rounded-lg border border-border bg-card p-3 shadow-lg">
                         <input
@@ -114,7 +209,7 @@ export function CategoriesPage() {
                   </div>
                   <div>
                     <p className="text-sm font-medium">
-                      {cat.icon} {cat.name}
+                      {cat.name}
                     </p>
                     {cat.isDefault && (
                       <p className="text-xs text-muted-foreground">Default</p>
