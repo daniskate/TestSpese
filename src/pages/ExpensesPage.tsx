@@ -275,16 +275,6 @@ export function ExpensesPage() {
         </div>
       )}
 
-      {/* Yellow FAB */}
-      <button
-        onClick={openForm}
-        className="fixed bottom-20 right-4 z-30 flex h-16 w-16 items-center justify-center rounded-full shadow-xl transition-all hover:scale-105 active:scale-95"
-        style={{ backgroundColor: "#FDB913" }}
-        aria-label="Aggiungi spesa"
-      >
-        <Plus className="h-7 w-7 text-gray-800" />
-      </button>
-
       {/* Form overlay */}
       {showForm && (
         <ExpenseForm

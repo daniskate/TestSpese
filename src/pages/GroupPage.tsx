@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "react-router";
 import { useGroup } from "@/context/GroupContext";
 import { MemberAvatar } from "@/components/members/MemberAvatar";
+import { Calculator } from "@/components/Calculator";
 import { formatEUR } from "@/lib/currency";
 import { formatDateShort } from "@/lib/format";
 import { Plus, TrendingUp, TrendingDown, Settings, Home } from "lucide-react";
@@ -234,6 +235,9 @@ export function GroupPage() {
           )}
         </div>
       </div>
+
+      {/* Calculator and Add Button */}
+      <Calculator />
 
       {/* Yellow FAB */}
       <button
