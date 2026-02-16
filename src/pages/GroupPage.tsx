@@ -103,10 +103,14 @@ export function GroupPage() {
                 <div key={item.name} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div
-                      className="flex h-10 w-10 items-center justify-center rounded-full text-lg"
+                      className="flex h-10 w-10 items-center justify-center rounded-full"
                       style={{ backgroundColor: `${item.color}20` }}
                     >
-                      {item.icon}
+                      <img
+                        src={item.icon}
+                        alt={item.name}
+                        className="h-6 w-6 object-contain"
+                      />
                     </div>
                     <span className="text-sm font-medium">{item.name}</span>
                   </div>
@@ -203,10 +207,14 @@ export function GroupPage() {
                   >
                     <div className="flex items-center gap-3">
                       <div
-                        className="flex h-10 w-10 items-center justify-center rounded-full text-lg"
+                        className="flex h-10 w-10 items-center justify-center rounded-full"
                         style={{ backgroundColor: `${category?.color}20` }}
                       >
-                        {category?.icon ?? "📦"}
+                        <img
+                          src={category?.icon ?? "/Icons/icon_svago.png"}
+                          alt={category?.name ?? "Altro"}
+                          className="h-6 w-6 object-contain"
+                        />
                       </div>
                       <div>
                         <p className="text-sm font-medium">

@@ -3,6 +3,7 @@ import { useGroup } from "@/context/GroupContext";
 import { useParams } from "react-router";
 import { addExpense, updateExpense } from "@/services/expense-service";
 import { splitEqual } from "@/lib/currency";
+import { CategorySelector } from "./CategorySelector";
 import { X } from "lucide-react";
 import { toast } from "sonner";
 import type { Expense, ExpenseSplit } from "@/types";
@@ -226,17 +227,11 @@ export function ExpenseForm({ expense, onClose }: ExpenseFormProps) {
         {/* Category */}
         <div className="space-y-1">
           <label className="text-sm font-medium">Categoria</label>
-          <select
+          <CategorySelector
+            categories={group.categories}
             value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-          >
-            {group.categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.icon} {c.name}
-              </option>
-            ))}
-          </select>
+            onChange={setCategoryId}
+          />
         </div>
 
         {/* Type */}

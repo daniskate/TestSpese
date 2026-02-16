@@ -108,7 +108,13 @@ export function ExpensesPage() {
                     key={expense.id}
                     className="flex items-center gap-3 rounded-xl bg-card p-4 shadow-sm"
                   >
-                    <span className="text-lg">{category?.icon ?? "\u{1F4E6}"}</span>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full" style={{ backgroundColor: `${category?.color}20` }}>
+                      <img
+                        src={category?.icon ?? "/Icons/icon_svago.png"}
+                        alt={category?.name ?? "Altro"}
+                        className="h-6 w-6 object-contain"
+                      />
+                    </div>
                     <div className="flex-1 min-w-0">
                       <p className="truncate text-sm font-medium">
                         {expense.description}
@@ -225,7 +231,13 @@ export function ExpensesPage() {
                             key={expense.id}
                             className="flex items-center gap-3 rounded-xl bg-card p-4 shadow-sm"
                           >
-                            <span className="text-lg">{category?.icon ?? "\u{1F4E6}"}</span>
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full" style={{ backgroundColor: `${category?.color}20` }}>
+                              <img
+                                src={category?.icon ?? "/Icons/icon_svago.png"}
+                                alt={category?.name ?? "Altro"}
+                                className="h-6 w-6 object-contain"
+                              />
+                            </div>
                             <div className="flex-1 min-w-0">
                               <p className="truncate text-sm font-medium">
                                 {expense.description}
