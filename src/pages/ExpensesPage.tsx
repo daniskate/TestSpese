@@ -7,7 +7,7 @@ import { formatEUR } from "@/lib/currency";
 import { formatDateShort } from "@/lib/format";
 import { getMemberTotalSpending } from "@/lib/debt-calculator";
 import { deleteExpense } from "@/services/expense-service";
-import { Plus, Trash2, Pencil } from "lucide-react";
+import { Trash2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { useParams } from "react-router";
 import type { Expense } from "@/types";
@@ -46,11 +46,6 @@ export function ExpensesPage() {
     } catch {
       toast.error("Errore nell'eliminazione");
     }
-  };
-
-  const openForm = () => {
-    setShowForm(true);
-    setSearchParams({});
   };
 
   const closeForm = () => {
